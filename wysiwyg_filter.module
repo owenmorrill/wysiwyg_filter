@@ -19,9 +19,6 @@ function wysiwyg_filter_filter($op, $delta = 0, $format = -1, $text = '') {
       return t('Allows you to restrict whether users can post HTML and which tags and attributes per HTML tag to filter out.');
     }
   }
-  else if ($op == 'no cache') {
-    return TRUE; // FIXME - No caching while on development !!!
-  }
   else if ($op == 'settings') {
     if ($delta == 0) {
       module_load_include('inc', 'wysiwyg_filter', 'wysiwyg_filter.admin');
@@ -518,8 +515,6 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
 
   if (is_array($attr)) {
     $filter_options = $attr;
-// FIXME
-//vd($filter_options);
     return;
   }
 
