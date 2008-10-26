@@ -43,7 +43,11 @@ function wysiwyg_filter_filter_tips($delta, $format, $long = FALSE) {
     $filter_options = wysiwyg_filter_get_filter_options($format);
     $output = '';
     if (!empty($filter_options['valid_elements'])) {
-      $output .= '<p>'. t('Allowed HTML tags: @tags', array('@tags' => implode(', ', array_keys($filter_options['valid_elements'])))) .'.</p>';
+      $tags = array();
+      foreach (array_keys($filter_options['valid_elements']) as $tag) {
+        $tags[] = '<'. $tag .'>';
+      }
+      $output .= '<p>'. t('Allowed HTML tags: @tags', array('@tags' => implode(' ', $tags))) .'.</p>';
     }
     if (!empty($filter_options['style_properties'])) {
       $output .= '<p>'. t('Allowed Style properties: @properties', array('@properties' => implode(', ', array_keys($filter_options['style_properties'])))) .'.</p>';
@@ -91,9 +95,6 @@ function wysiwyg_filter_get_advanced_rules() {
  * @param int $format
  *   Input format identifier.
  * @return array
- *   An array with the following items:
- *   - valid_elements   : Whitelist of HTML elements and attributes.
- *   - style_properties : Whitelist of style properties.
  */
 function wysiwyg_filter_get_filter_options($format) {
   $filter_options = array(
@@ -109,6 +110,79 @@ function wysiwyg_filter_get_filter_options($format) {
     }
   }
   return $filter_options;
+}
+
+/**
+ * Get allowed valid_elements for the given format ID.
+ *
+ * @param int $format
+ *   Input format identifier.
+ * @param boolean $parsed
+ *   TRUE to return a preparsed array, FALSE to return a string.
+ * @return mixed
+ *   When $parsed is FALSE: returns a string as entered by the user in
+ *                          in the filter settings form.
+ *   When $parsed is TRUE : returns a preparsed array of valid_elements
+ *                          information.
+ *
+ * @see wysiwyg_filter_settings_filter_submit()
+ * @see wysiwyg_filter_parse_valid_elements()
+ */
+function wysiwyg_filter_get_valid_elements($format, $parsed = FALSE) {
+  if ($parsed) {
+    return variable_get('wysiwyg_filter_valid_elements_parsed_'. $format, array());
+  }
+  return variable_get('wysiwyg_filter_valid_elements_raw_'. $format, wysiwyg_filter_default_valid_elements());
+}
+
+/**
+ * Obtain a string with default valid_elements.
+ */
+function wysiwyg_filter_default_valid_elements() {
+  return <<<EOT
+a[!href|target<_blank|title],
+div[align<center?justify?left?right],
+p[align<center?justify?left?right],
+br,em,strong,cite,code,blockquote,ul,ol,li,dl,dt,dd
+EOT;
+}
+
+/**
+ * Get HTML elements blacklist.
+ */
+function wysiwyg_filter_get_elements_blacklist() {
+  return array(
+    'applet',
+    'area',
+    'base',
+    'basefont',
+    'body',
+    'button',
+    'embed',
+    'form',
+    'frame',
+    'frameset',
+    'head',
+    'html',
+    'iframe',
+    'input',
+    'isindex',
+    'label',
+    'link',
+    'map',
+    'meta',
+    'noframes',
+    'noscript',
+    'object',
+    'optgroup',
+    'option',
+    'param',
+    'script',
+    'select',
+    'style',
+    'textarea',
+    'title',
+  );
 }
 
 /**
@@ -130,6 +204,8 @@ function wysiwyg_filter_get_style_properties($format) {
         }
       }
     }
+    // Sort style properties alphabetically (for filter tips).
+    ksort($style_properties[$format]);
   }
   return $style_properties[$format];
 }
@@ -150,8 +226,8 @@ function wysiwyg_filter_get_style_properties($format) {
  * This kind of issues may also happen when validating HTML attributes
  * where values are just checked for bad protocols. This is the same
  * exact measure taken by Drupal's filter_xss(), which has been a
- * friend of us for a long time. IMHO, it's a matter of balance
- * between performance, code complexity, etc. and... perfection?
+ * friend of us for a long time. It's a matter of balance between
+ * performance, code complexity, etc.
  *
  * All regular expressions are aimed to be delimited by `^ and $`.
  *
@@ -343,41 +419,6 @@ function wysiwyg_filter_get_style_property_groups() {
     '(?:\s*'. $groups['font']['properties']['font-family'] .'?)?)';
 
   return $groups;
-}
-
-/**
- * Get allowed valid_elements for the given format ID.
- *
- * @param int $format
- *   Input format identifier.
- * @param boolean $parsed
- *   TRUE to return a preparsed array, FALSE to return a string.
- * @return mixed
- *   When $parsed is FALSE: returns a string as entered by the user in
- *                          in the filter settings form.
- *   When $parsed is TRUE : returns a preparsed array of valid_elements
- *                          information.
- *
- * @see wysiwyg_filter_settings_filter_submit()
- * @see wysiwyg_filter_parse_valid_elements()
- */
-function wysiwyg_filter_get_valid_elements($format, $parsed = FALSE) {
-  if ($parsed) {
-    return variable_get('wysiwyg_filter_valid_elements_parsed_'. $format, array());
-  }
-  return variable_get('wysiwyg_filter_valid_elements_raw_'. $format, wysiwyg_filter_default_valid_elements());
-}
-
-/**
- * Obtain a string with default valid_elements.
- */
-function wysiwyg_filter_default_valid_elements() {
-  return <<<EOT
-a[!href|target<_blank|title],
-div[align<center?justify?left?right],
-p[align<center?justify?left?right],
-br,em,strong,cite,code,blockquote,ul,ol,li,dl,dt,dd
-EOT;
 }
 
 /**
@@ -671,6 +712,8 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
 
           // Filter property value for bad protocols (note that property value has already been decoded).
           $property_value = wysiwyg_filter_xss_bad_protocol($property_value);
+
+          // Check style property syntax.
           if (!preg_match($allowed_properties[$property_name], $property_value)) {
             // Ignore property if value does not match syntax rules.
             continue;
@@ -711,7 +754,7 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
               }
             }
             if (!$match_found) {
-              // Ignore property if URL does not match with any rule.
+              // Ignore property if URL does not match any rule.
               continue;
             }
           }
@@ -729,6 +772,8 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
       }
       else if ($attrname == 'class') {
         // Validate class names based on advanced rules specified in filter settings panel.
+        // Note that property value is decoded now and check_plain'd at end. Since the colon
+        // sign is not allowed, there's no need here to check for bad protocols.
         $dirty_names = array_filter(array_map('trim', explode(' ', decode_entities($attrinfo['value']))));
         $valid_names = array();
         foreach ($dirty_names as $dirty_name) {
@@ -739,13 +784,15 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
           }
         }
         if (empty($valid_names)) {
-          // Ignore attribute if no valid class name remains.
+          // Ignore attribute if no class name remains after validation.
           continue;
         }
         $attrinfo['value'] = check_plain(implode(' ', $valid_names));
       }
       else if ($attrname == 'id') {
         // Validate element IDs based on advanced rules specified in filter settings panel.
+        // Note that property value is decoded now and check_plain'd at end. Since the colon
+        // sign is not allowed, there's no need here to check for bad protocols.
         if (count($allowed_element_ids) <= 0) {
           // Ignore attribute if no rules have been specified.
           continue;
@@ -761,7 +808,7 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
           }
         }
         if (!$match_found) {
-          // Ignore if it contains invalid value.
+          // Ignore attribute if it contains invalid value.
           continue;
         }
         // Element ID is valid, check_plain result.
@@ -810,12 +857,14 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
 
 /**
  * Processes an style property value and ensures it does not contain an URL
- * with a disallowed protocol (e.g. javascript:)
+ * with a disallowed protocol (only http/https are allowed here).
  *
  * This function is based on Drupal's filter_xss_bad_protocol(). Differences are:
- * 1) It does not decode input string. Done in caller before calling us.
- * 2) It does not apply check_plain() to result. Done in caller after calling us.
- * 3) It allows a lot less protocols (http and https only).
+ * 1) It does not decode input string.
+ *    It should be done by the caller before calling us.
+ * 2) It does not apply check_plain() to result.
+ *    It should be done by the caller after calling us.
+ * 3) It allows a lot less protocols.
  *
  * @param $string
  *   The string with the style property value.

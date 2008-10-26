@@ -23,6 +23,10 @@ function wysiwyg_filter_settings_filter($format) {
   );
 
   $valid_elements = wysiwyg_filter_get_valid_elements($format);
+  $elements_blacklist = wysiwyg_filter_get_elements_blacklist();
+  foreach ($elements_blacklist as $i => $element) {
+    $elements_blacklist[$i] = '<'. $element .'>';
+  }
   $form['wysiwyg_filter']['wysiwyg_filter_valid_elements_raw_'. $format] = array(
     '#type' => 'textarea',
     '#title' => t('HTML elements and attributes'),
@@ -42,10 +46,12 @@ This option allows you to specify which HTML elements and attributes are allowed
   <li>For further information and examples, please consult documentation of the <a href="@valid-elements">valid_elements</a> option in the TinyMCE Wiki site.</li>
 </ul>
 <strong>Additional notes:</strong><ul>
+  <li>The following elements cannot be whitelisted due to security reasons, to prevent users from breaking site layout and/or to avoid posting invalid HTML. Forbidden elements: %elements-blacklist.</li>
   <li>JavaScript event attributes such as onclick, onmouseover, etc. are always ignored. Should you need them, please consider using the &quot;Full HTML&quot; input format instead.</li>
   <li>If you allow usage of the attributes &quot;id&quot;, &quot;class&quot; and/or &quot;style&quot;, then you should also select which style properties are allowed and/or specify explicit matching rules for them using the &quot;Advanced rules&quot; section below.</li>
 </ul>', array(
       '@valid-elements' => 'http://wiki.moxiecode.com/index.php/TinyMCE:Configuration/valid_elements',
+      '%elements-blacklist' => implode(' ', $elements_blacklist),
     )),
   );
 
@@ -137,6 +143,20 @@ This option allows you to specify which HTML elements and attributes are allowed
 function wysiwyg_filter_settings_filter_validate($form, &$form_state) {
   $format = $form_state['values']['format'];
 
+  // Check elements against hardcoded backlist.
+  $elements_blacklist = wysiwyg_filter_get_elements_blacklist();
+  $valid_elements = trim($form_state['values']['wysiwyg_filter_valid_elements_raw_'. $format]);
+  $valid_elements = wysiwyg_filter_parse_valid_elements($valid_elements);
+  $forbidden_elements = array();
+  foreach (array_keys($valid_elements) as $element) {
+    if (in_array($element, $elements_blacklist)) {
+      $forbidden_elements[] = $element;
+    }
+  }
+  if (!empty($forbidden_elements)) {
+    form_set_error('wysiwyg_filter_valid_elements_raw_'. $format, t('The following elements cannot be allowed: %elements.', array('%elements' => implode(', ', $forbidden_elements))));
+  }
+
   foreach (wysiwyg_filter_get_advanced_rules() as $rule_key => $rule_info) {
     $field_name = 'wysiwyg_filter_'. $rule_key .'_'. $format;
     $expressions = array_filter(explode(',', preg_replace('#\s+#', ',', trim($form_state['values'][$field_name]))));
@@ -219,7 +239,7 @@ function wysiwyg_filter_settings_filter_submit($form, &$form_state) {
  * @see wysiwyg_filter_process()
  */
 function wysiwyg_filter_parse_valid_elements($valid_elements) {
-  // Remove whitespaces and split valid elements from a comma separate list of items.
+  // Remove whitespaces and split valid elements from a comma separate list of items into an array.
   $valid_elements = array_map('drupal_strtolower', array_filter(explode(',', preg_replace('#\s+#', '', $valid_elements))));
   $parsed_elements = array();
   $common_attributes = array();
@@ -336,8 +356,8 @@ function wysiwyg_filter_parse_valid_elements($valid_elements) {
     }
   }
 
+  // Append commonly allowed attributes to each allowed element.
   if (!empty($common_attributes)) {
-    // Append commonly allowed attributes to each allowed element.
     foreach ($parsed_elements as $element => &$attributes) {
       // Do not append common attributes when all are allowed.
       if (isset($parsed_elements[$element]['*'])) {
@@ -353,6 +373,9 @@ function wysiwyg_filter_parse_valid_elements($valid_elements) {
       }
     }
   }
+
+  // Sort HTML elements alphabetically (for filter tips).
+  ksort($parsed_elements);
 
   return $parsed_elements;
 }
