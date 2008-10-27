@@ -112,7 +112,7 @@ This option allows you to specify which HTML elements and attributes are allowed
       'whitelist' => t('Whitelist - Add rel=&quot;nofollow&quot; to all links except those leading to domain names specified in the list below.'),
       'blacklist' => t('Blacklist - Add rel=&quot;nofollow&quot; to all links leading to domain names specified in the list below.'),
     ),
-    '#default_value' => variable_get('wysiwyg_filter_nofollow_policy_'. $format, 'disabled'),
+    '#default_value' => variable_get('wysiwyg_filter_nofollow_policy_'. $format, 'whitelist'),
     '#description' => t('If you choose the whitelist option, be sure to add your own domain names to the list!'),
   );
   $parts = parse_url($base_url);

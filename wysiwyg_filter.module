@@ -41,18 +41,20 @@ function wysiwyg_filter_filter($op, $delta = 0, $format = -1, $text = '') {
 function wysiwyg_filter_filter_tips($delta, $format, $long = FALSE) {
   if ($delta == 0) {
     $filter_options = wysiwyg_filter_get_filter_options($format);
-    $output = '';
+    $tips = array();
     if (!empty($filter_options['valid_elements'])) {
       $tags = array();
       foreach (array_keys($filter_options['valid_elements']) as $tag) {
         $tags[] = '<'. $tag .'>';
       }
-      $output .= '<p>'. t('Allowed HTML tags: @tags', array('@tags' => implode(' ', $tags))) .'.</p>';
+      $tips[] = t('Allowed HTML tags: @tags', array('@tags' => implode(' ', $tags)));
     }
     if (!empty($filter_options['style_properties'])) {
-      $output .= '<p>'. t('Allowed Style properties: @properties', array('@properties' => implode(', ', array_keys($filter_options['style_properties'])))) .'.</p>';
+      $tips[] = t('Allowed Style properties: @properties', array('@properties' => implode(', ', array_keys($filter_options['style_properties']))));
     }
-    return $output;
+    if (!empty($tips)) {
+      return implode('<br />', $tips);
+    }
   }
 }
 
@@ -100,7 +102,7 @@ function wysiwyg_filter_get_filter_options($format) {
   $filter_options = array(
     'valid_elements' => wysiwyg_filter_get_valid_elements($format, TRUE),
     'style_properties' => wysiwyg_filter_get_style_properties($format),
-    'nofollow_policy' => variable_get('wysiwyg_filter_nofollow_policy_'. $format, 'disabled'),
+    'nofollow_policy' => variable_get('wysiwyg_filter_nofollow_policy_'. $format, 'whitelist'),
     'nofollow_domains' => variable_get('wysiwyg_filter_nofollow_domains_'. $format, array()),
   );
   foreach (wysiwyg_filter_get_advanced_rules() as $rule_key => $rule_info) {
@@ -143,7 +145,7 @@ function wysiwyg_filter_default_valid_elements() {
 a[!href|target<_blank|title],
 div[align<center?justify?left?right],
 p[align<center?justify?left?right],
-br,em,strong,cite,code,blockquote,ul,ol,li,dl,dt,dd
+br,span,em,strong,cite,code,blockquote,ul,ol,li,dl,dt,dd
 EOT;
 }
 
@@ -240,8 +242,9 @@ function wysiwyg_filter_get_style_property_groups() {
   $regexp_integer = '[-]?[0-9]{1,3}';
   $regexp_number = '[-]?(?:[0-9]{0,3}|[0-9]{0,3}\.[0-9]{1,4})';
   $regexp_length = $regexp_number .'(?:px|pt|em|ex|in|cm|mm|pc)?';
-  $regexp_percent = '[-]?[12][0-9]{1,2}%';
+  $regexp_percent = '[-]?[12]?[0-9]{1,2}%';
   $regexp_color = '#[a-fA-F0-9]{3}|#[a-fA-F0-9]{6}|rgb\(?:\s*[0-9]{0,3}%?(?:\s*,\s*[0-9]{0,3}%?){2}\s*\)|[a-zA-Z]+';
+  $regexp_bgcolor = $regexp_color .'|transparent';
   $regexp_border_width = $regexp_length .'|thin|medium|thick';
   $regexp_border_style = 'none|hidden|dotted|dashed|solid|double|groove|ridge|inset|outset';
   $regexp_uri = 'url\(\s*[\'"]?(?:[^)]|(?<=\\\\)\\))+[\'"]?\s*\)';
@@ -256,7 +259,7 @@ function wysiwyg_filter_get_style_property_groups() {
       'properties' => array(
         'color' => '(?:'. $regexp_color .')',
         'background' => '', // See this property expanded below.
-        'background-color' => '(?:'. $regexp_color .'|transparent)',
+        'background-color' => '(?:'. $regexp_bgcolor .')',
         'background-image' => '(?:none|'. $regexp_uri .')',
         'background-repeat' => '(?:no-repeat|repeat(?:-x|-y)?)',
         'background-attachment' => '(?:scroll|fixed)',
@@ -308,11 +311,11 @@ function wysiwyg_filter_get_style_property_groups() {
     'border-1' => array(
       'title' => t('Border properties (1)'),
       'properties' => array(
-        'border' => '(?:(?:'. $regexp_border_width .')?(?:\s*(?:'. $regexp_border_style .')?(?:\s*(?:'. $regexp_color .'|transparent)?)))',
-        'border-top' => '(?:(?:'. $regexp_border_width .')?(?:\s*(?:'. $regexp_border_style .')?(?:\s*(?:'. $regexp_color .'|transparent)?)))',
-        'border-right' => '(?:(?:'. $regexp_border_width .')?(?:\s*(?:'. $regexp_border_style .')?(?:\s*(?:'. $regexp_color .'|transparent)?)))',
-        'border-bottom' => '(?:(?:'. $regexp_border_width .')?(?:\s*(?:'. $regexp_border_style .')?(?:\s*(?:'. $regexp_color .'|transparent)?)))',
-        'border-left' => '(?:(?:'. $regexp_border_width .')?(?:\s*(?:'. $regexp_border_style .')?(?:\s*(?:'. $regexp_color .'|transparent)?)))',
+        'border' => '(?:(?:'. $regexp_border_width .')?(?:\s*(?:'. $regexp_border_style .')?(?:\s*(?:'. $regexp_bgcolor .')?)))',
+        'border-top' => '(?:(?:'. $regexp_border_width .')?(?:\s*(?:'. $regexp_border_style .')?(?:\s*(?:'. $regexp_bgcolor .')?)))',
+        'border-right' => '(?:(?:'. $regexp_border_width .')?(?:\s*(?:'. $regexp_border_style .')?(?:\s*(?:'. $regexp_bgcolor .')?)))',
+        'border-bottom' => '(?:(?:'. $regexp_border_width .')?(?:\s*(?:'. $regexp_border_style .')?(?:\s*(?:'. $regexp_bgcolor .')?)))',
+        'border-left' => '(?:(?:'. $regexp_border_width .')?(?:\s*(?:'. $regexp_border_style .')?(?:\s*(?:'. $regexp_bgcolor .')?)))',
         'border-width' => '(?:'. $regexp_border_width .'(?:\s+(?:'. $regexp_border_width .')){0,3})',
         'border-top-width' => '(?:'. $regexp_border_width .')',
         'border-right-width' => '(?:'. $regexp_border_width .')',
@@ -323,11 +326,11 @@ function wysiwyg_filter_get_style_property_groups() {
     'border-2' => array(
       'title' => t('Border properties (2)'),
       'properties' => array(
-        'border-color' => '(?:'. $regexp_color .'|transparent(?:\s+(?:'. $regexp_color .'|transparent)){0,3})',
-        'border-top-color' => '(?:'. $regexp_color .'|transparent)',
-        'border-right-color' => '(?:'. $regexp_color .'|transparent)',
-        'border-bottom-color' => '(?:'. $regexp_color .'|transparent)',
-        'border-left-color' => '(?:'. $regexp_color .'|transparent)',
+        'border-color' => '(?:'. $regexp_bgcolor .'(?:\s+(?:'. $regexp_bgcolor .')){0,3})',
+        'border-top-color' => '(?:'. $regexp_bgcolor .')',
+        'border-right-color' => '(?:'. $regexp_bgcolor .')',
+        'border-bottom-color' => '(?:'. $regexp_bgcolor .')',
+        'border-left-color' => '(?:'. $regexp_bgcolor .')',
         'border-style' => '(?:'. $regexp_border_style .'(?:\s+(?:'. $regexp_border_style .')){0,3})',
         'border-top-style' => '(?:'. $regexp_border_style .')',
         'border-right-style' => '(?:'. $regexp_border_style .')',
