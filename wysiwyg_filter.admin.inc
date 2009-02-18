@@ -71,6 +71,7 @@ This option allows you to specify which HTML elements and attributes are allowed
       '#title' => $group_info['title'],
       '#default_value' => variable_get('wysiwyg_filter_styles_'. $group .'_'. $format, array()),
       '#options' => drupal_map_assoc(array_keys($group_info['properties'])),
+      '#checkall' => TRUE,
       '#prefix' => '<div class="wysiwyg-filter-style-properties-group">', '#suffix' => '</div>',
     );
     if (($i % 3) == 2) {

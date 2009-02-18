@@ -659,8 +659,7 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
   }
 
   // The attribute list ends with a valueless attribute like "selected".
-  // Though, it can only be accepted if matches our filtering rules.
-  if ($mode == 1 && substr($attrname, 0, 2) != 'on' && (isset($allowed_attributes[$attrname]) || isset($allowed_attributes['*']))) {
+  if ($mode == 1 && !$skip) {
     $attrarr[$attrname] = array();
   }
 
@@ -713,9 +712,6 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
             continue;
           }
 
-          // Filter property value for bad protocols (note that property value has already been decoded).
-          $property_value = wysiwyg_filter_xss_bad_protocol($property_value);
-
           // Check style property syntax.
           if (!preg_match($allowed_properties[$property_name], $property_value)) {
             // Ignore property if value does not match syntax rules.
@@ -748,6 +744,11 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
             // http://www.w3.org/TR/CSS2/syndata.html#uri
             $url = preg_replace('`\\\\([(),\'"\s])`', '\1', $url[1]);
 
+            // Ignore property if URL fails the check for bad protocols.
+            if (wysiwyg_filter_xss_bad_protocol($url) != $url) {
+              continue;
+            }
+
             // Check URL against advanced filter rules.
             $match_found = FALSE;
             foreach ($allowed_style_urls as $regexp) {
@@ -760,6 +761,10 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
               // Ignore property if URL does not match any rule.
               continue;
             }
+          }
+          else {
+            // Filter property value for bad protocols (note that property value has already been decoded).
+            $property_value = wysiwyg_filter_xss_bad_protocol($property_value);
           }
 
           // Sanitized property name and value (check_plain'd here).
