@@ -705,7 +705,7 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
             // Ignore properties that do not match the format "property-name: value".
             continue;
           }
-          $property_name = &$property_matches[1];
+          $property_name = strtolower($property_matches[1]);
           $property_value = &$property_matches[2];
           if (!isset($allowed_properties[$property_name])) {
             // Ignore property if not whitelisted in filter settings.
