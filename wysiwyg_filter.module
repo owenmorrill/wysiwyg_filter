@@ -669,6 +669,12 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
       // Ignore the whole element if required attribute is not present.
       return FALSE;
     }
+	
+    // When no attribute value has been specified in parsed HTML stream,
+    // then supply default value if provided by input format settings.
+    if (!isset($attrinfo['value']) && isset($allowed_attributes[$attrname]['default'])) {
+	  $attrarr[$attrname] = array('value' => $allowed_attributes[$attrname]['default'], 'delimiter' => '"');
+    }
   }
 
   // Check the current HTML element for additional attribute rules.
@@ -677,12 +683,6 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
   foreach ($attrarr as $attrname => $attrinfo) {
     $parsed_attribute = $attrname;
     $attribute_options = (isset($allowed_attributes[$attrname]) ? $allowed_attributes[$attrname] : array());
-
-    // When no attribute value has been specified in parsed HTML stream,
-    // then supply default value if provided by input format settings.
-    if (!isset($attrinfo['value']) && isset($attribute_options['default'])) {
-      $attrinfo['value'] = $attribute_options['default'];
-    }
 
     if (isset($attrinfo['value'])) {
       // Supply forced attribute value as defined by input format?
