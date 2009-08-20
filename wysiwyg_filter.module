@@ -72,15 +72,15 @@ function wysiwyg_filter_get_advanced_rules() {
   return array(
     'valid_classes' => array(
       'title' => t('Rules for Class Names'),
-      'description' => t('Enter a comma separated list of rules for <em>Class Names</em>. Whitespaces and line-breaks are ignored. <em>Class Names</em> should start with a lower case letter &quot;a-z&quot; and can be followed by one or more lower case letters &quot;a-z&quot;, digits &quot;0-9&quot;, hyphens &quot;-&quot; and/or underscores &quot;_&quot;. The asterisk character &quot;*&quot; can be used in rules to represent any number of characters from the second position of the rule. Example: &quot;userclass*, my-font-*&quot; are valid rules for <em>Class Names</em>, whereas &quot;*class&quot; is invalid.'),
-      'validate_regexp' => '`^[a-z][-_a-z0-9?*]*$`',
-      'asterisk_expansion' => '[-_a-z0-9]*',
+      'description' => t('Enter a comma separated list of rules for <em>Class Names</em>. Whitespaces and line-breaks are ignored. <em>Class Names</em> should start with an upper or lower case letter &quot;a-z&quot; and can be followed by one or more upper or lower case letters &quot;a-z&quot;, digits &quot;0-9&quot;, hyphens &quot;-&quot; and/or underscores &quot;_&quot;. The asterisk character &quot;*&quot; can be used in rules to represent any number of characters from the second position of the rule. Example: &quot;userclass*, my-font-*&quot; are valid rules for <em>Class Names</em>, whereas &quot;*class&quot; is invalid.'),
+      'validate_regexp' => '`^[a-zA-Z][-_a-zA-Z0-9?*]*$`',
+      'asterisk_expansion' => '[-_a-zA-Z0-9]*',
     ),
     'valid_ids' => array(
       'title' => t('Rules for Element IDs'),
-      'description' => t('Enter a comma separated list of rules for <em>Element IDs</em>. Whitespaces and line-breaks are ignored. <em>Element IDs</em> should start with a lower case letter &quot;a-z&quot; and can be followed by one or more lower case letters &quot;a-z&quot;, digits &quot;0-9&quot;, hyphens &quot;-&quot; and/or underscores &quot;_&quot;. The asterisk character &quot;*&quot; can be used in rules to represent any number of characters from the second position of the rule. Example: &quot;foo*&quot; is a valid rule for <em>Element IDs</em>, whereas &quot;*bar&quot; is invalid.'),
-      'validate_regexp' => '`^[a-z][-_a-z0-9?*]*$`',
-      'asterisk_expansion' => '[-_a-z0-9]*',
+      'description' => t('Enter a comma separated list of rules for <em>Element IDs</em>. Whitespaces and line-breaks are ignored. <em>Element IDs</em> should start with an upper or lower case letter &quot;a-z&quot; and can be followed by one or more upper or lower case letters &quot;a-z&quot;, digits &quot;0-9&quot;, hyphens &quot;-&quot; and/or underscores &quot;_&quot;. The asterisk character &quot;*&quot; can be used in rules to represent any number of characters from the second position of the rule. Example: &quot;foo*&quot; is a valid rule for <em>Element IDs</em>, whereas &quot;*bar&quot; is invalid.'),
+      'validate_regexp' => '`^[a-zA-Z][-_a-zA-Z0-9?*]*$`',
+      'asterisk_expansion' => '[-_a-zA-Z0-9]*',
     ),
     'style_urls' => array(
       'title' => t('Rules for URLs used within inline styles'),
