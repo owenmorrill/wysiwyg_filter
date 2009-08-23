@@ -64,12 +64,15 @@ This option allows you to specify which HTML elements and attributes are allowed
       '<p>'. t('Additional matching rules should be specified from the &quot;Advanced rules&quot; section below for a few of these properties that may contain URLs in their values (&quot;background&quot;, &quot;background-image&quot;, &quot;list-style&quot; and &quot;list-style-image&quot;). Otherwise, these style properties will be ignored from user input.') .'</p>',
   );
   $style_property_groups = wysiwyg_filter_get_style_property_groups();
+  $enabled_style_properties = array();
   $i = 0;
   foreach ($style_property_groups as $group => $group_info) {
+    $style_properties = variable_get('wysiwyg_filter_styles_'. $group .'_'. $format, array());
+    $enabled_style_properties += array_filter($style_properties);
     $form['wysiwyg_filter']['styles']['wysiwyg_filter_styles_'. $group .'_'. $format] = array(
       '#type' => 'checkboxes',
       '#title' => $group_info['title'],
-      '#default_value' => variable_get('wysiwyg_filter_styles_'. $group .'_'. $format, array()),
+      '#default_value' => $style_properties,
       '#options' => drupal_map_assoc(array_keys($group_info['properties'])),
       '#checkall' => TRUE,
       '#prefix' => '<div class="wysiwyg-filter-style-properties-group">', '#suffix' => '</div>',
@@ -86,6 +89,8 @@ This option allows you to specify which HTML elements and attributes are allowed
     '#collapsible' => TRUE, '#collapsed' => TRUE,
     '#description' => '<p>'. t('Use the following options to configure additional rules for certain HTML element attributes. As a safety measure, these rules should be defined explicitly. Otherwise, the corresponding HTML element attributes will be ignored from user input.') .'</p>',
   );
+  _wysiwyg_filter_clear_messages();
+  $valid_elements_parsed = wysiwyg_filter_get_valid_elements($format, TRUE);
   foreach (wysiwyg_filter_get_advanced_rules() as $rule_key => $rule_info) {
     $field_name = 'wysiwyg_filter_'. $rule_key .'_'. $format;
     $default_value = implode(",\n", variable_get($field_name, array()));
@@ -97,6 +102,13 @@ This option allows you to specify which HTML elements and attributes are allowed
       '#rows' => min(10, max(2, substr_count($default_value, "\n") + 2)),
       '#description' => $rule_info['description'],
     );
+
+    // Display warning if the field is empty but the rule definition is not
+    // complete.
+    if (empty($default_value) && !_wysiwyg_filter_is_rule_definition_complete($rule_info, $valid_elements_parsed, $enabled_style_properties)) {
+      drupal_set_message($rule_info['required_by_message'], 'warning');
+      $form['wysiwyg_filter']['advanced_rules']['#collapsed'] = FALSE;
+    }
   }
 
   $form['wysiwyg_filter']['nofollow'] = array(
@@ -134,6 +146,58 @@ This option allows you to specify which HTML elements and attributes are allowed
   $form['#submit'] = array('wysiwyg_filter_settings_filter_submit');
 
   return $form;
+}
+
+/**
+ * Validate if the given rule definition is complete.
+ *
+ * @param $rule_info
+ *   An array of information about the rule we are about to check.
+ * @param $elements
+ *   The array of all valid elements enabled for the current filter.
+ * @param $style_properties
+ *   The array of all style properties enabled for the current filter.
+ * @return
+ *   TRUE if the rule definiton is complete, FALSE otherwise.
+ *
+ * @see wysiwyg_filter_parse_valid_elements()
+ * @see wysiwyg_filter_get_advanced_rules()
+ */
+function _wysiwyg_filter_is_rule_definition_complete($rule_info, $elements, $style_properties) {
+  foreach ($elements as $tag => $attributes) {
+    if (isset($attributes[$rule_info['required_by']])) {
+      // If this rule is not dependent on style properties, then we found it,
+      // while we should not, so the rule is not complete.
+      if (empty($rule_info['required_by_styles'])) {
+        return FALSE;
+      }
+      // If this rule is dependent on style properties, then we need to check
+      // if the related style properties exist.
+      foreach ($rule_info['required_by_styles'] as $style_property) {
+        if (isset($style_properties[$style_property])) {
+          return FALSE;
+        }
+      }
+    }
+  }
+  return TRUE;
+}
+
+/**
+ * Clear any warning message we might have set previously.
+ */
+function _wysiwyg_filter_clear_messages() {
+  $messages = drupal_get_messages('warning');
+  if (!empty($messages)) {
+    foreach(wysiwyg_filter_get_advanced_rules() as $rule_info) {
+      $my_messages[] = $rule_info['required_by_message'];
+    }
+    foreach ($messages['warning'] as $warning) {
+      if (!in_array($warning, $my_messages)) {
+        drupal_set_message($warning, 'warning');
+      }
+    }
+  }
 }
 
 /**

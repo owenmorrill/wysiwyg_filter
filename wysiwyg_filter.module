@@ -72,21 +72,28 @@ function wysiwyg_filter_get_advanced_rules() {
   return array(
     'valid_classes' => array(
       'title' => t('Rules for Class Names'),
-      'description' => t('Enter a comma separated list of rules for <em>Class Names</em>. Whitespaces and line-breaks are ignored. <em>Class Names</em> should start with an upper or lower case letter &quot;a-z&quot; and can be followed by one or more upper or lower case letters &quot;a-z&quot;, digits &quot;0-9&quot;, hyphens &quot;-&quot; and/or underscores &quot;_&quot;. The asterisk character &quot;*&quot; can be used in rules to represent any number of characters from the second position of the rule. Example: &quot;userclass*, my-font-*&quot; are valid rules for <em>Class Names</em>, whereas &quot;*class&quot; is invalid.'),
+      'description' => t('Enter a comma separated list of rules for <em>Class Names</em>. Whitespaces and line-breaks are ignored. <em>Class Names</em> should start with an upper or lower case letter &quot;a to z&quot; and can be followed by one or more upper or lower case letters &quot;a to z&quot;, digits &quot;0 to 9&quot;, hyphens &quot;-&quot; and/or underscores &quot;_&quot;. The asterisk character &quot;*&quot; can be used in rules to represent any number of characters from the second position of the rule. Example: &quot;userclass*, my-font-*&quot; are valid rules for <em>Class Names</em>, whereas &quot;*class&quot; is invalid.'),
       'validate_regexp' => '`^[a-zA-Z][-_a-zA-Z0-9?*]*$`',
       'asterisk_expansion' => '[-_a-zA-Z0-9]*',
+      'required_by' => 'class',
+      'required_by_message' => t('The <strong>class</strong> attribute is used in your <em>HTML elements and attributes</em> rules. You should specify the <em>Rules for Class Names</em> field in the &quot;Advanced rules&quot; section below. Leaving it unspecified will result in all class attributes filtered out.'),
     ),
     'valid_ids' => array(
       'title' => t('Rules for Element IDs'),
-      'description' => t('Enter a comma separated list of rules for <em>Element IDs</em>. Whitespaces and line-breaks are ignored. <em>Element IDs</em> should start with an upper or lower case letter &quot;a-z&quot; and can be followed by one or more upper or lower case letters &quot;a-z&quot;, digits &quot;0-9&quot;, hyphens &quot;-&quot; and/or underscores &quot;_&quot;. The asterisk character &quot;*&quot; can be used in rules to represent any number of characters from the second position of the rule. Example: &quot;foo*&quot; is a valid rule for <em>Element IDs</em>, whereas &quot;*bar&quot; is invalid.'),
+      'description' => t('Enter a comma separated list of rules for <em>Element IDs</em>. Whitespaces and line-breaks are ignored. <em>Element IDs</em> should start with an upper or lower case letter &quot;a to z&quot; and can be followed by one or more upper or lower case letters &quot;a to z&quot;, digits &quot;0 to 9&quot;, hyphens &quot;-&quot; and/or underscores &quot;_&quot;. The asterisk character &quot;*&quot; can be used in rules to represent any number of characters from the second position of the rule. Example: &quot;foo*&quot; is a valid rule for <em>Element IDs</em>, whereas &quot;*bar&quot; is invalid.'),
       'validate_regexp' => '`^[a-zA-Z][-_a-zA-Z0-9?*]*$`',
       'asterisk_expansion' => '[-_a-zA-Z0-9]*',
+      'required_by' => 'id',
+      'required_by_message' => t('The <strong>id</strong> attribute is used in your <em>HTML elements and attributes</em> rules. You should specify the <em>Rules for Element IDs</em> field in the &quot;Advanced rules&quot; section below. Leaving it unspecified will result in all id attributes filtered out.'),
     ),
     'style_urls' => array(
       'title' => t('Rules for URLs used within inline styles'),
       'description' => t('Enter a comma separated list of rules for <em>URLs used within inline styles</em>. Whitespaces and line-breaks are ignored. These rules affect the following style properties: &quot;background&quot;, &quot;background-image&quot;, &quot;list-style&quot; and &quot;list-style-image&quot;. Each rule represents a single path or URL. The asterisk character &quot;*&quot; can be used to represent any number of characters. Examples: use &quot;/*&quot; for local URLs only, use &quot;/images/*&quot; for one particular directory, use &quot;http://www.example.com/*&quot; for URLs of an external site, use &quot;@base-path*, @base-url*&quot; for URLs of your own site.', array('@base-path' => $base_path, '@base-url' => $base_url)),
       'validate_regexp' => '`^.*$`',
       'asterisk_expansion' => '.*',
+      'required_by' => 'style',
+      'required_by_styles' => array('background', 'background-image', 'list-style', 'list-style-image'),
+      'required_by_message' => t('The <strong>style</strong> attribute is used in your <em>HTML elements and attributes</em> rules, and you have enabled one of the following style properties: &quot;background&quot;, &quot;background-image&quot;, &quot;list-style&quot; or &quot;list-style-image&quot;. You should specify the <em>Rules for URLs used within inline styles</em> field in the &quot;Advanced rules&quot; section below. Leaving it unspecified will result in all URLs used within inline styles filtered out.'),
     ),
   );
 }
@@ -669,7 +676,7 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
       // Ignore the whole element if required attribute is not present.
       return FALSE;
     }
-	
+
     // When no attribute value has been specified in parsed HTML stream,
     // then supply default value if provided by input format settings.
     if (!isset($attrinfo['value']) && isset($allowed_attributes[$attrname]['default'])) {
