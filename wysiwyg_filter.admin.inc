@@ -189,7 +189,7 @@ function _wysiwyg_filter_is_rule_definition_complete($rule_info, $elements, $sty
 function _wysiwyg_filter_clear_messages() {
   $messages = drupal_get_messages('warning');
   if (!empty($messages)) {
-    foreach(wysiwyg_filter_get_advanced_rules() as $rule_info) {
+    foreach (wysiwyg_filter_get_advanced_rules() as $rule_info) {
       $my_messages[] = $rule_info['required_by_message'];
     }
     foreach ($messages['warning'] as $warning) {
@@ -282,7 +282,7 @@ function wysiwyg_filter_settings_filter_submit($form, &$form_state) {
 /**
  * Parse valid_elements string in TinyMCE format.
  *
- * @see http://wiki.moxiecode.com/index.php/TinyMCE:Configuration/valid_elements
+ * @link http://wiki.moxiecode.com/index.php/TinyMCE:Configuration/valid_elements
  *
  * @param string $valid_elements
  *

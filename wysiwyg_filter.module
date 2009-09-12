@@ -680,7 +680,7 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
     // When no attribute value has been specified in parsed HTML stream,
     // then supply default value if provided by input format settings.
     if (!isset($attrinfo['value']) && isset($allowed_attributes[$attrname]['default'])) {
-	  $attrarr[$attrname] = array('value' => $allowed_attributes[$attrname]['default'], 'delimiter' => '"');
+      $attrarr[$attrname] = array('value' => $allowed_attributes[$attrname]['default'], 'delimiter' => '"');
     }
   }
 
