@@ -3,7 +3,7 @@
 
 /**
  * @file
- * Administration pages for the module.
+ * Administration pages for the WYSIWYG Filter module.
  */
 
 /**
@@ -14,6 +14,9 @@
 function wysiwyg_filter_settings_filter($format) {
   global $base_url;
   drupal_add_css(drupal_get_path('module', 'wysiwyg_filter') .'/wysiwyg_filter.admin.css', 'module', 'all', FALSE);
+
+  // Load common functions.
+  module_load_include('inc', 'wysiwyg_filter');
 
   $form = array();
   $form['wysiwyg_filter'] = array(
@@ -277,170 +280,4 @@ function wysiwyg_filter_settings_filter_submit($form, &$form_state) {
   // Dots are escaped to speed up a little the job of the filter process.
   $nofollow_domains = array_filter(explode(',', preg_replace('#\s+#', ',', str_replace('.', '\.', $form_state['values']['wysiwyg_filter_nofollow_domains_'. $format]))));
   $form_state['values']['wysiwyg_filter_nofollow_domains_'. $format] = $nofollow_domains;
-}
-
-/**
- * Parse valid_elements string in TinyMCE format.
- *
- * @link http://wiki.moxiecode.com/index.php/TinyMCE:Configuration/valid_elements
- *
- * @param string $valid_elements
- *
- * @return array
- *   Information about allowed HTML elements and attributes.
- *   Each HTML element contains a whitelist of attributes or '*' meaning all
- *   attributes are allowed for that element.
- *   Each attribute contains an array with one or more of the following items
- *   of information:
- *   - required   boolean   TRUE when attribute is required.
- *   - default    string    Default value that will be applied when only the
- *                          attribute name is specified.
- *   - forced     string    Value that will be applied when the attribute is
- *                          present in the parsed HTML stream.
- *   - values     array     Whitelist of attribute values.
- *   This information is used by the WYSIWYG Filter itself to filter out
- *   disallowed HTML elements and attributes.
- *
- * @see wysiwyg_filter_process()
- */
-function wysiwyg_filter_parse_valid_elements($valid_elements) {
-  // Remove whitespaces and split valid elements from a comma separate list of items into an array.
-  $valid_elements = array_map('drupal_strtolower', array_filter(explode(',', preg_replace('#\s+#', '', $valid_elements))));
-  $parsed_elements = array();
-  $common_attributes = array();
-  foreach ($valid_elements as $valid_element) {
-    // Extract the element name and its allowed attributes list
-    // including special characters that will be parsed later.
-    if (preg_match('`^(@|[#+-]{0,1}[a-z0-9/]+)(\[([^]]*)\])*$`', $valid_element, $matches)) {
-      // Element names can be specified by the special character "@" (used
-      // to allow a common set of attributes for all valid HTML elements)
-      // or a list of names separated by the special character "/".
-      $elements = array_unique(array_filter(explode('/', $matches[1])));
-
-      // Parse allowed attributes list (empty list means no attributes are allowed).
-      $attributes = array();
-      if (!empty($matches[3])) {
-        // More than one attribute can be specified in the list (separator: "|").
-        foreach (array_filter(explode('|', $matches[3])) as $attribute) {
-          // Split item into attribute name and (optional) attribute options.
-          $attribute_options = array();
-          if (preg_match('`^([-a-z]+)([=:<].*)$`', $attribute, $match)) {
-            $attribute = $match[1];
-
-            // Parse attribute options.
-            if (strpos('=:<', $match[2][0]) !== FALSE) {
-              $operator = $match[2][0];
-              if ($operator == '=') {
-                // Default value for the attribute (applied when present without explicit value).
-                $attribute_options['default'] = substr($match[2], 1);
-              }
-              else if ($operator == ':') {
-                // Forced value for the attribute (applied when present regardless of the specified value).
-                $attribute_options['forced'] = substr($match[2], 1);
-              }
-              else if ($operator == '<') {
-                // This attribute accepts only the specified list of values (separator: "?").
-                $attribute_options['values'] = array_unique(array_filter(explode('?', substr($match[2], 1))));
-              }
-            }
-          }
-
-          // Are all attributes allowed for this element?
-          if ($attribute == '*') {
-            $attributes['*'] = array();
-            continue;
-          }
-
-          if (substr($attribute, 0, 1) == '!') {
-            // If this attribute is not present in parsed HTML, then
-            // the whole HTML element will be stripped out.
-            $attribute = substr($attribute, 1);
-            $attribute_options['required'] = TRUE;
-          }
-
-          // Ignore malformed attribute names.
-          if (!preg_match('`^[a-z][-a-z]*$`', $attribute)) {
-            continue;
-          }
-
-          // Attributes related to DOM events (on*) are not allowed here.
-          if (substr($attribute, 0, 2) == 'on') {
-            continue;
-          }
-
-          // Collect attribute options.
-          if (!isset($attributes[$attribute])) {
-            $attributes[$attribute] = array();
-          }
-          foreach ($attribute_options as $option_type => $option_value) {
-            $attributes[$attribute][$option_type] = $option_value;
-          }
-        }
-      }
-
-      // Obtain list of element names/synonyms (separated by /).
-      // Consider synonyms as different elements with same exact attributes.
-      foreach ($elements as $element) {
-        if ($element == '@') {
-          // These attributes should be enabled for all elements.
-          foreach ($attributes as $attribute => $attribute_options) {
-            if (!isset($common_attributes[$attribute])) {
-              $common_attributes[$attribute] = array();
-            }
-            foreach ($attribute_options as $option_type => $option_value) {
-              $common_attributes[$attribute][$option_type] = $option_value;
-            }
-          }
-        }
-        else {
-          // Ignore element name prefixes (+ - #) that are allowed for the
-          // TynyMCE valid_elements parameter, but for the sake of simplicity,
-          // our server side filter ignores them.
-          if (strpos('+-#', $element[0]) !== FALSE) {
-            $element = substr($element, 1);
-          }
-          if (!isset($parsed_elements[$element])) {
-            $parsed_elements[$element] = array();
-          }
-          if (!isset($parsed_elements[$element]['*'])) {
-            foreach ($attributes as $attribute => $attribute_options) {
-              if ($attribute == '*') {
-                $parsed_elements[$element] = array('*' => array());
-                break;
-              }
-              if (!isset($parsed_elements[$element][$attribute])) {
-                $parsed_elements[$element][$attribute] = array();
-              }
-              foreach ($attribute_options as $option_type => $option_value) {
-                $parsed_elements[$element][$attribute][$option_type] = $option_value;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  // Append commonly allowed attributes to each allowed element.
-  if (!empty($common_attributes)) {
-    foreach ($parsed_elements as $element => &$attributes) {
-      // Do not append common attributes when all are allowed.
-      if (isset($parsed_elements[$element]['*'])) {
-        continue;
-      }
-      foreach ($common_attributes as $attribute => $attribute_options) {
-        if (!isset($attributes[$attribute])) {
-          $attributes[$attribute] = array();
-        }
-        foreach ($attribute_options as $option_type => $option_value) {
-          $attributes[$attribute][$option_type] = $option_value;
-        }
-      }
-    }
-  }
-
-  // Sort HTML elements alphabetically (for filter tips).
-  ksort($parsed_elements);
-
-  return $parsed_elements;
 }
