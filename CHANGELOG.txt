@@ -6,6 +6,7 @@
 Features:
 - #574686 Aside from fixing the bug, code splitted into external includes to minimize memory requirements when the filter is not used.
 - Added CHANGELOG.txt.
+- Updated translation template to account for changes in code split.
 
 Bugfixes:
 - Fixed minor coding style issues reported by Coder module.
