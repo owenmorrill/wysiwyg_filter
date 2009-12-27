@@ -44,12 +44,12 @@ function wysiwyg_filter_process($text, $format) {
   // Defuse all HTML entities.
   $text = str_replace('&', '&amp;', $text);
   // Change back only well-formed entities in our whitelist
-  // Named entities.
-  $text = preg_replace('/&amp;([A-Za-z][A-Za-z0-9]*;)/', '&\1', $text);
   // Decimal numeric entities.
   $text = preg_replace('/&amp;#([0-9]+;)/', '&#\1', $text);
   // Hexadecimal numeric entities.
   $text = preg_replace('/&amp;#[Xx]0*((?:[0-9A-Fa-f]{2})+;)/', '&#x\1', $text);
+  // Named entities.
+  $text = preg_replace('/&amp;([A-Za-z][A-Za-z0-9]*;)/', '&\1', $text);
 
   return preg_replace_callback('%
     (

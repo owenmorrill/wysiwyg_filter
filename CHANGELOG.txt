@@ -11,6 +11,7 @@ Features:
 Bugfixes:
 - Fixed minor coding style issues reported by Coder module.
 - #574686 WYSIWYG Filter Strips out allowed HTML when filter settings have not been saved.
+- Fixed named entities handling, so it does not clash with other entities and result in wrong encoding. (back port of Drupal issue #359276).
 
 
 6.x-1.3
