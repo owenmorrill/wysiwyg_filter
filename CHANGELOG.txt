@@ -3,6 +3,8 @@
 6.x-1.x-dev
 ===========
 
+Features:
+- #713922 Provide the valid_elements option to TinyMCE editors dynamically altering the Wysiwyg API settings.
 
 
 6.x-1.4
