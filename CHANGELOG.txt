@@ -6,6 +6,9 @@
 Features:
 - #713922 Provide the valid_elements option to TinyMCE editors dynamically altering the Wysiwyg API settings.
 
+Bugfixes:
+- #746434 by nedjo - Filter form validate and submit handlers overwritten.
+
 
 6.x-1.4
 =======

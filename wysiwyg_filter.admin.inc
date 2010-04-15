@@ -145,10 +145,27 @@ This option allows you to specify which HTML elements and attributes are allowed
     '#description' => t('Enter a comma separated list of top level domain names. Note that all subdomains will also be included. Example: example.com will match example.com, www.example.com, etc.'),
   );
 
-  $form['#validate'] = array('wysiwyg_filter_settings_filter_validate');
-  $form['#submit'] = array('wysiwyg_filter_settings_filter_submit');
-
   return $form;
+}
+
+/**
+ * Implementation of hook_form_FORM_ID_alter().
+ *
+ * Because filter format forms are merged, any common keys need to be added in
+ * a form_alter. Otherwise, e.g. submit handlers added by one module would be
+ * overwritten by those of another module.
+ */
+function wysiwyg_filter_form_filter_admin_configure_alter(&$form, $form_state) {
+  if (isset($form['wysiwyg_filter'])) {
+    $form['#validate'][] = 'wysiwyg_filter_settings_filter_validate';
+
+    // Add the submit callback to the beginning of the array because we need
+    // to prepare data for system_settings_form_submit().
+    $form['#submit'] = array_merge(
+      array('wysiwyg_filter_settings_filter_submit'),
+      $form['#submit'] ? $form['#submit'] : array()
+    );
+  }
 }
 
 /**
