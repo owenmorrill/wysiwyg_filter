@@ -161,10 +161,7 @@ function wysiwyg_filter_form_filter_admin_configure_alter(&$form, $form_state) {
 
     // Add the submit callback to the beginning of the array because we need
     // to prepare data for system_settings_form_submit().
-    $form['#submit'] = array_merge(
-      array('wysiwyg_filter_settings_filter_submit'),
-      $form['#submit'] ? $form['#submit'] : array()
-    );
+    array_unshift($form['#submit'], 'wysiwyg_filter_settings_filter_submit');
   }
 }
 
