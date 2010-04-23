@@ -8,6 +8,7 @@ Features:
 
 Bugfixes:
 - #746434 by nedjo - Filter form validate and submit handlers overwritten.
+- #760720 by gaellafond and markus_petrux - margin/padding style attribute gets stripped when using more than one value.
 
 
 6.x-1.4
