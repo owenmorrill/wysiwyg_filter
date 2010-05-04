@@ -10,6 +10,7 @@ Bugfixes:
 - #746434 by nedjo - Filter form validate and submit handlers overwritten.
 - #760720 by gaellafond and markus_petrux - margin/padding style attribute gets stripped when using more than one value.
 - #788508 Enhance the parser to accept individual values of background style attribute in any order.
+- #789690 Enhance the parser to accept individual values of font style attribute in any order.
 
 
 6.x-1.4

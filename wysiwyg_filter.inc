@@ -492,12 +492,13 @@ function wysiwyg_filter_get_style_property_groups() {
   $groups['color']['properties']['background'] = '(?:'. $regexp .')(?:(?:\s+'. $regexp .')+)';
 
   // 'font' property.
-  $groups['font']['properties']['font'] = '(?:(?:'.
-    $groups['font']['properties']['font-style'] .'?(?:\s*'.
-    $groups['font']['properties']['font-variant'] .'?(?:\s*'.
-    $groups['font']['properties']['font-weight'] .'?)))\s*'.
-    '(?:(?:'. $groups['font']['properties']['font-size'] .')(?:\s*/\s*'. $groups['dimension']['properties']['line-height'] .')?)?'.
-    '(?:\s*'. $groups['font']['properties']['font-family'] .'?)?)';
+  $regexp = '(?:'.
+    $groups['font']['properties']['font-style'] .'|'.
+    $groups['font']['properties']['font-variant'] .'|'.
+    $groups['font']['properties']['font-weight'] .'|'.
+    '(?:'. $groups['font']['properties']['font-size'] .')(?:\s*/\s*'. $groups['dimension']['properties']['line-height'] .')?|'.
+    $groups['font']['properties']['font-family'] .')';
+  $groups['font']['properties']['font'] = '(?:'. $regexp .')(?:(?:\s+'. $regexp .')+)';
 
   return $groups;
 }
