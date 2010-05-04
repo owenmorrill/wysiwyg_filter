@@ -483,12 +483,13 @@ function wysiwyg_filter_get_style_property_groups() {
   );
 
   // 'background' property.
-  $groups['color']['properties']['background'] = '(?:'.
-    $groups['color']['properties']['background-color'] .'?(?:\s*'.
-    $groups['color']['properties']['background-image'] .'?(?:\s*'.
-    $groups['color']['properties']['background-repeat'] .'?(?:\s*'.
-    $groups['color']['properties']['background-attachment'] .'?(?:\s*'.
-    $groups['color']['properties']['background-position'] .'?)))))';
+  $regexp = '(?:'.
+    $groups['color']['properties']['background-color'] .'|'.
+    $groups['color']['properties']['background-image'] .'|'.
+    $groups['color']['properties']['background-repeat'] .'|'.
+    $groups['color']['properties']['background-attachment'] .'|'.
+    $groups['color']['properties']['background-position'] .')';
+  $groups['color']['properties']['background'] = '(?:'. $regexp .')(?:(?:\s+'. $regexp .')+)';
 
   // 'font' property.
   $groups['font']['properties']['font'] = '(?:(?:'.
