@@ -9,6 +9,7 @@ Features:
 Bugfixes:
 - #746434 by nedjo - Filter form validate and submit handlers overwritten.
 - #760720 by gaellafond and markus_petrux - margin/padding style attribute gets stripped when using more than one value.
+- #792566 Issues with border-width, border-style and border-color (marked as dup, fixed in #760720).
 - #788508 Enhance the parser to accept individual values of background style attribute in any order.
 - #789690 Enhance the parser to accept individual values of font style attribute in any order.
 - #775200 Enhance the handling of HTML comments (solution based on #559584).
