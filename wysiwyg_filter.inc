@@ -512,9 +512,10 @@ function wysiwyg_filter_get_style_property_groups() {
  */
 function wysiwyg_filter_get_filter_options($format) {
   $filter_options = array(
-    'valid_elements' => wysiwyg_filter_get_valid_elements($format, TRUE),
+    'valid_elements'   => wysiwyg_filter_get_valid_elements($format, TRUE),
+    'allow_comments'   => variable_get('wysiwyg_filter_allow_comments_'. $format, 0),
     'style_properties' => wysiwyg_filter_get_style_properties($format),
-    'nofollow_policy' => variable_get('wysiwyg_filter_nofollow_policy_'. $format, 'whitelist'),
+    'nofollow_policy'  => variable_get('wysiwyg_filter_nofollow_policy_'. $format, 'whitelist'),
     'nofollow_domains' => variable_get('wysiwyg_filter_nofollow_domains_'. $format, array()),
   );
   foreach (wysiwyg_filter_get_advanced_rules() as $rule_key => $rule_info) {

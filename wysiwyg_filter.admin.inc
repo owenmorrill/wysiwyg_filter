@@ -58,6 +58,14 @@ This option allows you to specify which HTML elements and attributes are allowed
     )),
   );
 
+  $form['wysiwyg_filter']['wysiwyg_filter_allow_comments_'. $format] = array(
+    '#type' => 'radios',
+    '#title' => t('HTML comments'),
+    '#options' => array(0 => t('Disabled'), 1 => t('Enabled')),
+    '#default_value' => variable_get('wysiwyg_filter_allow_comments_'. $format, 0),
+    '#description' => t('Use this option to allow HTML comments.'),
+  );
+
   $form['wysiwyg_filter']['styles'] = array(
     '#type' => 'fieldset',
     '#title' => t('Style properties'),

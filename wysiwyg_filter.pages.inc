@@ -55,6 +55,8 @@ function wysiwyg_filter_process($text, $format) {
     (
     <(?=[^a-zA-Z!/])  # a lone <
     |                 # or
+    <!--.*?-->        # a comment
+    |                 # or
     <[^>]*(>|$)       # a string that starts with a <, up until the > or the end of the string
     |                 # or
     >                 # just a >
@@ -93,7 +95,7 @@ function _wysiwyg_filter_xss_split($m, $store = FALSE) {
     return '&lt;';
   }
 
-  if (!preg_match('%^<\s*(/\s*)?([a-zA-Z0-9]+)([^>]*)>?$%', $string, $matches)) {
+  if (!preg_match('%^<\s*(/\s*)?([a-zA-Z0-9]+)([^>]*)>?|(<!--.*?-->)$%', $string, $matches)) {
     // Seriously malformed
     return '';
   }
@@ -101,8 +103,13 @@ function _wysiwyg_filter_xss_split($m, $store = FALSE) {
   $slash = trim($matches[1]);
   $elem = strtolower($matches[2]);
   $attrlist = &$matches[3];
+  $comment = &$matches[4];
 
-  if (!isset($filter_options['valid_elements'][$elem])) {
+  if (!empty($comment)) {
+    // Allow or disallow HTML comments.
+    return (!empty($filter_options['allow_comments']) ? $comment : '');
+  }
+  elseif (!isset($filter_options['valid_elements'][$elem])) {
     // Disallowed HTML element.
     return '';
   }

@@ -11,6 +11,7 @@ Bugfixes:
 - #760720 by gaellafond and markus_petrux - margin/padding style attribute gets stripped when using more than one value.
 - #788508 Enhance the parser to accept individual values of background style attribute in any order.
 - #789690 Enhance the parser to accept individual values of font style attribute in any order.
+- #775200 Enhance the handling of HTML comments (solution based on #559584).
 
 
 6.x-1.4
