@@ -3,6 +3,8 @@
 6.x-1.x-dev
 ===========
 
+Features:
+- #878032 by dagmar - Integrate with input formats module.
 
 
 6.x-1.5 - 2010/05/08

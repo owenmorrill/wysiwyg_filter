@@ -71,3 +71,16 @@ function wysiwyg_filter_wysiwyg_editor_settings_alter(&$settings, $context) {
     $settings['valid_elements'] = preg_replace('#\s+#', '', $valid_elements);
   }
 }
+
+/**
+ * Implementation of hook_input_formats_variables().
+ */
+function wysiwyg_filter_input_formats_variables($delta) {
+  $variables = array();
+  switch ($delta) {
+    case 0:
+      $variables['wysiwyg_filter_valid_elements_parsed'] = t('Valid elements parsed');
+      break;
+  }
+  return $variables;
+}
