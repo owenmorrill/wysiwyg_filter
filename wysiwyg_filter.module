@@ -66,9 +66,12 @@ function wysiwyg_filter_filter_tips($delta, $format, $long = FALSE) {
  * Implementation of wysiwyg_editor_settings_alter().
  */
 function wysiwyg_filter_wysiwyg_editor_settings_alter(&$settings, $context) {
-  // Provide the valid_elements option to TinyMCE editors.
+  // Provide the valid_elements option to TinyMCE editors, only if the WYSIWYG
+  // Filter is enabled in the input format related to the current given context.
   if ($context['profile']->editor == 'tinymce' && ($valid_elements = variable_get('wysiwyg_filter_valid_elements_raw_'. $context['profile']->format, ''))) {
-    $settings['valid_elements'] = preg_replace('#\s+#', '', $valid_elements);
+    if (isset($context['profile']->format) && ($filters = filter_list_format($context['profile']->format)) && !empty($filters['wysiwyg_filter/0'])) {
+      $settings['valid_elements'] = preg_replace('#\s+#', '', $valid_elements);
+    }
   }
 }
 

@@ -6,6 +6,9 @@
 Features:
 - #878032 by dagmar - Integrate with input formats module.
 
+Bugfixes:
+- #926364 by roderik - Filtering occurring when filter is turned off.
+
 
 6.x-1.5 - 2010/05/08
 ====================
