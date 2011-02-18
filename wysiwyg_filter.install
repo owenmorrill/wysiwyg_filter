@@ -6,10 +6,14 @@
  */
 
 /**
- * Implementation of hook_uninstall().
+ * Implements hook_uninstall().
  */
 function wysiwyg_filter_uninstall() {
   // Delete all module variables and then clear the variables cache.
-  db_query("DELETE FROM {variable} WHERE name LIKE 'wysiwyg\_filter\_%'");
+  // TODO Please review the conversion of this statement to the D7 database API syntax.
+  /* db_query("DELETE FROM {variable} WHERE name LIKE 'wysiwyg\_filter\_%'") */
+  db_delete('variable')
+  ->condition('name', 'wysiwyg\_filter\_%', 'LIKE')
+  ->execute();
   cache_clear_all('variables', 'cache');
 }

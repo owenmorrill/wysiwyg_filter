@@ -12,7 +12,7 @@
  */
 function wysiwyg_filter_settings_filter($format) {
   global $base_url;
-  drupal_add_css(drupal_get_path('module', 'wysiwyg_filter') . '/wysiwyg_filter.admin.css', 'module', 'all', FALSE);
+  drupal_add_css(drupal_get_path('module', 'wysiwyg_filter') . '/wysiwyg_filter.admin.css', array('preprocess' => FALSE));
 
   // Load common functions.
   module_load_include('inc', 'wysiwyg_filter');
@@ -163,7 +163,7 @@ This option allows you to specify which HTML elements and attributes are allowed
 }
 
 /**
- * Implementation of hook_form_FORM_ID_alter().
+ * Implements hook_form_FORM_ID_alter().
  *
  * Because filter format forms are merged, any common keys need to be added in
  * a form_alter. Otherwise, e.g. submit handlers added by one module would be

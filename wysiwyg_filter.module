@@ -7,9 +7,9 @@
  */
 
 /**
- * Implementation of hook_filter().
+ * Implements hook_filter().
  */
-function wysiwyg_filter_filter($op, $delta = 0, $format = -1, $text = '') {
+function wysiwyg_filter_filter_XXX($op, $delta = 0, $format = -1, $text = '') {
   if ($op == 'list') {
     return array(0 => t('WYSIWYG Filter'));
   }
@@ -36,9 +36,9 @@ function wysiwyg_filter_filter($op, $delta = 0, $format = -1, $text = '') {
 }
 
 /**
- * Implementation of hook_filter_tips().
+ * Implements hook_filter_tips().
  */
-function wysiwyg_filter_filter_tips($delta, $format, $long = FALSE) {
+function wysiwyg_filter_filter_tips_XXX($delta, $format, $long = FALSE) {
   if ($delta == 0) {
     // Load common functions.
     module_load_include('inc', 'wysiwyg_filter');
@@ -75,7 +75,7 @@ function wysiwyg_filter_wysiwyg_editor_settings_alter(&$settings, $context) {
 }
 
 /**
- * Implementation of hook_input_formats_variables().
+ * Implements hook_input_formats_variables().
  */
 function wysiwyg_filter_input_formats_variables($delta) {
   $variables = array();
