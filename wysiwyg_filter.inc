@@ -75,13 +75,13 @@ EOT;
  */
 function wysiwyg_filter_get_valid_elements($format, $parsed = FALSE) {
   if ($parsed) {
-    if (!($valid_elements = variable_get('wysiwyg_filter_valid_elements_parsed_'. $format, NULL))) {
+    if (!($valid_elements = variable_get('wysiwyg_filter_valid_elements_parsed_' . $format, NULL))) {
       $valid_elements = wysiwyg_filter_default_valid_elements();
       $valid_elements = wysiwyg_filter_parse_valid_elements($valid_elements);
     }
     return $valid_elements;
   }
-  return variable_get('wysiwyg_filter_valid_elements_raw_'. $format, wysiwyg_filter_default_valid_elements());
+  return variable_get('wysiwyg_filter_valid_elements_raw_' . $format, wysiwyg_filter_default_valid_elements());
 }
 
 /**
@@ -317,14 +317,14 @@ function wysiwyg_filter_parse_valid_elements($valid_elements) {
 function wysiwyg_filter_get_style_property_groups() {
   $regexp_integer = '[-]?[0-9]{1,3}';
   $regexp_number = '[-]?(?:[0-9]{0,3}|[0-9]{0,3}\.[0-9]{1,4})';
-  $regexp_length = $regexp_number .'(?:px|pt|em|ex|in|cm|mm|pc)?';
+  $regexp_length = $regexp_number . '(?:px|pt|em|ex|in|cm|mm|pc)?';
   $regexp_percent = '[-]?[12]?[0-9]{1,2}%';
   $regexp_color = '#[a-fA-F0-9]{3}|#[a-fA-F0-9]{6}|rgb\(\s*[0-9]{0,3}%?(?:\s*,\s*[0-9]{0,3}%?){2}\s*\)|[a-zA-Z]+';
-  $regexp_bgcolor = $regexp_color .'|transparent';
-  $regexp_border_width = $regexp_length .'|thin|medium|thick';
+  $regexp_bgcolor = $regexp_color . '|transparent';
+  $regexp_border_width = $regexp_length . '|thin|medium|thick';
   $regexp_border_style = 'none|hidden|dotted|dashed|solid|double|groove|ridge|inset|outset';
   $regexp_uri = 'url\(\s*[\'"]?(?:[^)]|(?<=\\\\)\\))+[\'"]?\s*\)';
-  $regexp_shape = 'rect\(\s*(?:auto|'. $regexp_length .')(?:\s+(?:auto|'. $regexp_length .')){3}\s*\)';
+  $regexp_shape = 'rect\(\s*(?:auto|' . $regexp_length . ')(?:\s+(?:auto|' . $regexp_length . ')){3}\s*\)';
   $regexp_list_style_type = 'none|disc|circle|square|decimal(?:-leading-zero)?|lower-(?:alpha|greek|latin|roman)|upper-(?:alpha|latin|roman)|hebrew|armenian|georgian|cjk-ideographic|hiragana(?:-iroha)?|katakana(?:-iroha)?';
 
   // Note that shorthand properties such as background and font are built
@@ -333,13 +333,13 @@ function wysiwyg_filter_get_style_property_groups() {
     'color' => array(
       'title' => t('Color and background properties'),
       'properties' => array(
-        'color' => '(?:'. $regexp_color .')',
+        'color' => '(?:' . $regexp_color . ')',
         'background' => '', // See this property expanded below.
-        'background-color' => '(?:'. $regexp_bgcolor .')',
-        'background-image' => '(?:none|'. $regexp_uri .')',
+        'background-color' => '(?:' . $regexp_bgcolor . ')',
+        'background-image' => '(?:none|' . $regexp_uri . ')',
         'background-repeat' => '(?:no-repeat|repeat(?:-x|-y)?)',
         'background-attachment' => '(?:scroll|fixed)',
-        'background-position' => '(?:(?:(?:top|center|bottom|left|right)(?:\s+(?:top|center|bottom|left|right))?)|(?:(?:'. $regexp_length .'|'. $regexp_percent .')(?:\s+(?:'. $regexp_length .'|'. $regexp_percent .'))?))',
+        'background-position' => '(?:(?:(?:top|center|bottom|left|right)(?:\s+(?:top|center|bottom|left|right))?)|(?:(?:' . $regexp_length . '|' . $regexp_percent . ')(?:\s+(?:' . $regexp_length . '|' . $regexp_percent . '))?))',
       ),
     ),
     'font' => array(
@@ -347,8 +347,8 @@ function wysiwyg_filter_get_style_property_groups() {
       'properties' => array(
         'font' => '', // See this property expanded below.
         'font-family' => '(?:[-_a-zA-Z0-9"\' ]*(?:\s*,\s*[-_a-zA-Z0-9"\' ]*)*)',
-        'font-size' => '(?:(?:x-|xx-)?(?:small|large)(?:er)?|medium|'. $regexp_length .'|'. $regexp_percent .')',
-        'font-size-adjust' => '(?:none|'. $regexp_number .')',
+        'font-size' => '(?:(?:x-|xx-)?(?:small|large)(?:er)?|medium|' . $regexp_length . '|' . $regexp_percent . ')',
+        'font-size-adjust' => '(?:none|' . $regexp_number . ')',
         'font-stretch' => '(?:normal|wider|narrower|(?:ultra-|extra-|semi-)?(?:condensed|expanded))',
         'font-style' => '(?:normal|italic|oblique)',
         'font-variant' => '(?:normal|small-caps)',
@@ -360,10 +360,10 @@ function wysiwyg_filter_get_style_property_groups() {
       'properties' => array(
         'text-align' => '(?:left|right|center|justify)',
         'text-decoration' => '(?:none|underline|overline|line-through|blink)',
-        'text-indent' => '(?:'. $regexp_length .'|'. $regexp_percent .')',
+        'text-indent' => '(?:' . $regexp_length . '|' . $regexp_percent . ')',
         'text-transform' => '(?:none|capitalize|(?:upper|lower)case)',
-        'letter-spacing' => '(?:normal|'. $regexp_length .')',
-        'word-spacing' => '(?:normal|'. $regexp_length .')',
+        'letter-spacing' => '(?:normal|' . $regexp_length . ')',
+        'word-spacing' => '(?:normal|' . $regexp_length . ')',
         'white-space' => '(?:normal|pre|nowrap)',
         'direction' => '(?:ltr|rtl)',
         'unicode-bidi' => '(?:normal|embed|bidi-override)',
@@ -372,71 +372,71 @@ function wysiwyg_filter_get_style_property_groups() {
     'box' => array(
       'title' => t('Box properties'),
       'properties' => array(
-        'margin' => '(?:auto|'. $regexp_length .'|'. $regexp_percent .')(?:\s+(?:auto|'. $regexp_length .'|'. $regexp_percent .')){0,3}',
-        'margin-top' => '(?:auto|'. $regexp_length .'|'. $regexp_percent .')',
-        'margin-right' => '(?:auto|'. $regexp_length .'|'. $regexp_percent .')',
-        'margin-bottom' => '(?:auto|'. $regexp_length .'|'. $regexp_percent .')',
-        'margin-left' => '(?:auto|'. $regexp_length .'|'. $regexp_percent .')',
-        'padding' => '(?:'. $regexp_length .'|'. $regexp_percent .')(?:\s+(?:'. $regexp_length .'|'. $regexp_percent .')){0,3}',
-        'padding-top' => '(?:'. $regexp_length .'|'. $regexp_percent .')',
-        'padding-right' => '(?:'. $regexp_length .'|'. $regexp_percent .')',
-        'padding-bottom' => '(?:'. $regexp_length .'|'. $regexp_percent .')',
-        'padding-left' => '(?:'. $regexp_length .'|'. $regexp_percent .')',
+        'margin' => '(?:auto|' . $regexp_length . '|' . $regexp_percent . ')(?:\s+(?:auto|' . $regexp_length . '|' . $regexp_percent . ')){0,3}',
+        'margin-top' => '(?:auto|' . $regexp_length . '|' . $regexp_percent . ')',
+        'margin-right' => '(?:auto|' . $regexp_length . '|' . $regexp_percent . ')',
+        'margin-bottom' => '(?:auto|' . $regexp_length . '|' . $regexp_percent . ')',
+        'margin-left' => '(?:auto|' . $regexp_length . '|' . $regexp_percent . ')',
+        'padding' => '(?:' . $regexp_length . '|' . $regexp_percent . ')(?:\s+(?:' . $regexp_length . '|' . $regexp_percent . ')){0,3}',
+        'padding-top' => '(?:' . $regexp_length . '|' . $regexp_percent . ')',
+        'padding-right' => '(?:' . $regexp_length . '|' . $regexp_percent . ')',
+        'padding-bottom' => '(?:' . $regexp_length . '|' . $regexp_percent . ')',
+        'padding-left' => '(?:' . $regexp_length . '|' . $regexp_percent . ')',
       ),
     ),
     'border-1' => array(
       'title' => t('Border properties (1)'),
       'properties' => array(
-        'border' => '(?:(?:'. $regexp_border_width .')?(?:\s*(?:'. $regexp_border_style .')?(?:\s*(?:'. $regexp_bgcolor .')?)))',
-        'border-top' => '(?:(?:'. $regexp_border_width .')?(?:\s*(?:'. $regexp_border_style .')?(?:\s*(?:'. $regexp_bgcolor .')?)))',
-        'border-right' => '(?:(?:'. $regexp_border_width .')?(?:\s*(?:'. $regexp_border_style .')?(?:\s*(?:'. $regexp_bgcolor .')?)))',
-        'border-bottom' => '(?:(?:'. $regexp_border_width .')?(?:\s*(?:'. $regexp_border_style .')?(?:\s*(?:'. $regexp_bgcolor .')?)))',
-        'border-left' => '(?:(?:'. $regexp_border_width .')?(?:\s*(?:'. $regexp_border_style .')?(?:\s*(?:'. $regexp_bgcolor .')?)))',
-        'border-width' => '(?:'. $regexp_border_width .')(?:\s+(?:'. $regexp_border_width .')){0,3}',
-        'border-top-width' => '(?:'. $regexp_border_width .')',
-        'border-right-width' => '(?:'. $regexp_border_width .')',
-        'border-bottom-width' => '(?:'. $regexp_border_width .')',
-        'border-left-width' => '(?:'. $regexp_border_width .')',
+        'border' => '(?:(?:' . $regexp_border_width . ')?(?:\s*(?:' . $regexp_border_style . ')?(?:\s*(?:' . $regexp_bgcolor . ')?)))',
+        'border-top' => '(?:(?:' . $regexp_border_width . ')?(?:\s*(?:' . $regexp_border_style . ')?(?:\s*(?:' . $regexp_bgcolor . ')?)))',
+        'border-right' => '(?:(?:' . $regexp_border_width . ')?(?:\s*(?:' . $regexp_border_style . ')?(?:\s*(?:' . $regexp_bgcolor . ')?)))',
+        'border-bottom' => '(?:(?:' . $regexp_border_width . ')?(?:\s*(?:' . $regexp_border_style . ')?(?:\s*(?:' . $regexp_bgcolor . ')?)))',
+        'border-left' => '(?:(?:' . $regexp_border_width . ')?(?:\s*(?:' . $regexp_border_style . ')?(?:\s*(?:' . $regexp_bgcolor . ')?)))',
+        'border-width' => '(?:' . $regexp_border_width . ')(?:\s+(?:' . $regexp_border_width . ')){0,3}',
+        'border-top-width' => '(?:' . $regexp_border_width . ')',
+        'border-right-width' => '(?:' . $regexp_border_width . ')',
+        'border-bottom-width' => '(?:' . $regexp_border_width . ')',
+        'border-left-width' => '(?:' . $regexp_border_width . ')',
       ),
     ),
     'border-2' => array(
       'title' => t('Border properties (2)'),
       'properties' => array(
-        'border-color' => '(?:'. $regexp_bgcolor .')(?:\s+(?:'. $regexp_bgcolor .')){0,3}',
-        'border-top-color' => '(?:'. $regexp_bgcolor .')',
-        'border-right-color' => '(?:'. $regexp_bgcolor .')',
-        'border-bottom-color' => '(?:'. $regexp_bgcolor .')',
-        'border-left-color' => '(?:'. $regexp_bgcolor .')',
-        'border-style' => '(?:'. $regexp_border_style .')(?:\s+(?:'. $regexp_border_style .')){0,3}',
-        'border-top-style' => '(?:'. $regexp_border_style .')',
-        'border-right-style' => '(?:'. $regexp_border_style .')',
-        'border-bottom-style' => '(?:'. $regexp_border_style .')',
-        'border-left-style' => '(?:'. $regexp_border_style .')',
+        'border-color' => '(?:' . $regexp_bgcolor . ')(?:\s+(?:' . $regexp_bgcolor . ')){0,3}',
+        'border-top-color' => '(?:' . $regexp_bgcolor . ')',
+        'border-right-color' => '(?:' . $regexp_bgcolor . ')',
+        'border-bottom-color' => '(?:' . $regexp_bgcolor . ')',
+        'border-left-color' => '(?:' . $regexp_bgcolor . ')',
+        'border-style' => '(?:' . $regexp_border_style . ')(?:\s+(?:' . $regexp_border_style . ')){0,3}',
+        'border-top-style' => '(?:' . $regexp_border_style . ')',
+        'border-right-style' => '(?:' . $regexp_border_style . ')',
+        'border-bottom-style' => '(?:' . $regexp_border_style . ')',
+        'border-left-style' => '(?:' . $regexp_border_style . ')',
       ),
     ),
     'dimension' => array(
       'title' => t('Dimension properties'),
       'properties' => array(
-        'height' => '(?:auto|'. $regexp_length .'|'. $regexp_percent .')',
-        'line-height' => '(?:normal|'. $regexp_number .'|'. $regexp_length .'|'. $regexp_percent .')',
-        'max-height' => '(?:none|'. $regexp_length .'|'. $regexp_percent .')',
-        'max-width' => '(?:none|'. $regexp_length .'|'. $regexp_percent .')',
-        'min-height' => '(?:'. $regexp_length .'|'. $regexp_percent .')',
-        'min-width' => '(?:'. $regexp_length .'|'. $regexp_percent .')',
-        'width' => '(?:auto|'. $regexp_length .'|'. $regexp_percent .')',
+        'height' => '(?:auto|' . $regexp_length . '|' . $regexp_percent . ')',
+        'line-height' => '(?:normal|' . $regexp_number . '|' . $regexp_length . '|' . $regexp_percent . ')',
+        'max-height' => '(?:none|' . $regexp_length . '|' . $regexp_percent . ')',
+        'max-width' => '(?:none|' . $regexp_length . '|' . $regexp_percent . ')',
+        'min-height' => '(?:' . $regexp_length . '|' . $regexp_percent . ')',
+        'min-width' => '(?:' . $regexp_length . '|' . $regexp_percent . ')',
+        'width' => '(?:auto|' . $regexp_length . '|' . $regexp_percent . ')',
       ),
     ),
     'positioning' => array(
       'title' => t('Positioning properties'),
       'properties' => array(
-        'bottom' => '(?:auto|'. $regexp_length .'|'. $regexp_percent .')',
-        'clip' => '(?:auto|'. $regexp_shape .')',
-        'left' => '(?:auto|'. $regexp_length .'|'. $regexp_percent .')',
+        'bottom' => '(?:auto|' . $regexp_length . '|' . $regexp_percent . ')',
+        'clip' => '(?:auto|' . $regexp_shape . ')',
+        'left' => '(?:auto|' . $regexp_length . '|' . $regexp_percent . ')',
         'overflow' => '(?:visible|hidden|scroll|auto)',
-        'right' => '(?:auto|'. $regexp_length .'|'. $regexp_percent .')',
-        'top' => '(?:auto|'. $regexp_length .'|'. $regexp_percent .')',
-        'vertical-align' => '(?:baseline|sub|super|middle|(?:text-)?(?:top|bottom)|'. $regexp_length .'|'. $regexp_percent .')',
-        'z-index' => '(?:auto|'. $regexp_integer .')',
+        'right' => '(?:auto|' . $regexp_length . '|' . $regexp_percent . ')',
+        'top' => '(?:auto|' . $regexp_length . '|' . $regexp_percent . ')',
+        'vertical-align' => '(?:baseline|sub|super|middle|(?:text-)?(?:top|bottom)|' . $regexp_length . '|' . $regexp_percent . ')',
+        'z-index' => '(?:auto|' . $regexp_integer . ')',
       ),
     ),
     'layout' => array(
@@ -452,17 +452,17 @@ function wysiwyg_filter_get_style_property_groups() {
     'list' => array(
       'title' => t('List properties'),
       'properties' => array(
-        'list-style' => '(?:(?:'. $regexp_list_style_type .')?(?:\s*(?:(?:in|out)side)?(?:\s*(?:none|'. $regexp_uri .')?)))',
-        'list-style-image' => '(?:none|'. $regexp_uri .')',
+        'list-style' => '(?:(?:' . $regexp_list_style_type . ')?(?:\s*(?:(?:in|out)side)?(?:\s*(?:none|' . $regexp_uri . ')?)))',
+        'list-style-image' => '(?:none|' . $regexp_uri . ')',
         'list-style-position' => '(?:inside|outside)',
-        'list-style-type' => '(?:'. $regexp_list_style_type .')',
+        'list-style-type' => '(?:' . $regexp_list_style_type . ')',
       ),
     ),
     'table' => array(
       'title' => t('Table properties'),
       'properties' => array(
         'border-collapse' => '(?:collapse|separate)',
-        'border-spacing' => '(?:'. $regexp_length .'(?:\s+'. $regexp_length .')?)',
+        'border-spacing' => '(?:' . $regexp_length . '(?:\s+' . $regexp_length . ')?)',
         'caption-side' => '(?:top|bottom|left|right)',
         'empty-cells' => '(?:show|hide)',
         'table-layout' => '(?:auto|fixed)',
@@ -472,32 +472,32 @@ function wysiwyg_filter_get_style_property_groups() {
       'title' => t('User interface properties'),
       'properties' => array(
         'cursor' => '(?:auto|crosshair|default|pointer|move|(?:e|ne|nw|n|se|sw|s|w)-resize|text|wait|help)',
-        'outline' => '(?:(?:'. $regexp_color .'|invert)?(?:\s*(?:'. $regexp_border_style .')?(?:\s*(?:'. $regexp_border_width .')?)))',
-        'outline-width' => '(?:'. $regexp_border_width .')',
-        'outline-style' => '(?:'. $regexp_border_style .')',
-        'outline-color' => '(?:'. $regexp_color .'|invert)',
-        'zoom' => '(?:normal|'. $regexp_number .'|'. $regexp_percent .')',
+        'outline' => '(?:(?:' . $regexp_color . '|invert)?(?:\s*(?:' . $regexp_border_style . ')?(?:\s*(?:' . $regexp_border_width . ')?)))',
+        'outline-width' => '(?:' . $regexp_border_width . ')',
+        'outline-style' => '(?:' . $regexp_border_style . ')',
+        'outline-color' => '(?:' . $regexp_color . '|invert)',
+        'zoom' => '(?:normal|' . $regexp_number . '|' . $regexp_percent . ')',
       ),
     ),
   );
 
   // 'background' property.
-  $regexp = '(?:'.
-    $groups['color']['properties']['background-color'] .'|'.
-    $groups['color']['properties']['background-image'] .'|'.
-    $groups['color']['properties']['background-repeat'] .'|'.
-    $groups['color']['properties']['background-attachment'] .'|'.
-    $groups['color']['properties']['background-position'] .')';
-  $groups['color']['properties']['background'] = '(?:'. $regexp .')(?:(?:\s+'. $regexp .')+)';
+  $regexp = '(?:' .
+    $groups['color']['properties']['background-color'] . '|' .
+    $groups['color']['properties']['background-image'] . '|' .
+    $groups['color']['properties']['background-repeat'] . '|' .
+    $groups['color']['properties']['background-attachment'] . '|' .
+    $groups['color']['properties']['background-position'] . ')';
+  $groups['color']['properties']['background'] = '(?:' . $regexp . ')(?:(?:\s+' . $regexp . ')+)';
 
   // 'font' property.
-  $regexp = '(?:'.
-    $groups['font']['properties']['font-style'] .'|'.
-    $groups['font']['properties']['font-variant'] .'|'.
-    $groups['font']['properties']['font-weight'] .'|'.
-    '(?:'. $groups['font']['properties']['font-size'] .')(?:\s*/\s*'. $groups['dimension']['properties']['line-height'] .')?|'.
-    $groups['font']['properties']['font-family'] .')';
-  $groups['font']['properties']['font'] = '(?:'. $regexp .')(?:(?:\s+'. $regexp .')+)';
+  $regexp = '(?:' .
+    $groups['font']['properties']['font-style'] . '|' .
+    $groups['font']['properties']['font-variant'] . '|' .
+    $groups['font']['properties']['font-weight'] . '|' .
+    '(?:' . $groups['font']['properties']['font-size'] . ')(?:\s*/\s*' . $groups['dimension']['properties']['line-height'] . ')?|' .
+    $groups['font']['properties']['font-family'] . ')';
+  $groups['font']['properties']['font'] = '(?:' . $regexp . ')(?:(?:\s+' . $regexp . ')+)';
 
   return $groups;
 }
@@ -511,16 +511,16 @@ function wysiwyg_filter_get_style_property_groups() {
  */
 function wysiwyg_filter_get_filter_options($format) {
   $filter_options = array(
-    'valid_elements'   => wysiwyg_filter_get_valid_elements($format, TRUE),
-    'allow_comments'   => variable_get('wysiwyg_filter_allow_comments_'. $format, 0),
+    'valid_elements' => wysiwyg_filter_get_valid_elements($format, TRUE),
+    'allow_comments' => variable_get('wysiwyg_filter_allow_comments_' . $format, 0),
     'style_properties' => wysiwyg_filter_get_style_properties($format),
-    'nofollow_policy'  => variable_get('wysiwyg_filter_nofollow_policy_'. $format, 'whitelist'),
-    'nofollow_domains' => variable_get('wysiwyg_filter_nofollow_domains_'. $format, array()),
+    'nofollow_policy' => variable_get('wysiwyg_filter_nofollow_policy_' . $format, 'whitelist'),
+    'nofollow_domains' => variable_get('wysiwyg_filter_nofollow_domains_' . $format, array()),
   );
   foreach (wysiwyg_filter_get_advanced_rules() as $rule_key => $rule_info) {
     $filter_options[$rule_key] = array();
-    foreach (variable_get('wysiwyg_filter_'. $rule_key .'_'. $format, array()) as $rule) {
-      $filter_options[$rule_key][] = '`^'. str_replace("\xFF", $rule_info['asterisk_expansion'], preg_quote(str_replace('*', "\xFF", $rule), '`')) .'$`';
+    foreach (variable_get('wysiwyg_filter_' . $rule_key . '_' . $format, array()) as $rule) {
+      $filter_options[$rule_key][] = '`^' . str_replace("\xFF", $rule_info['asterisk_expansion'], preg_quote(str_replace('*', "\xFF", $rule), '`')) . '$`';
     }
   }
   return $filter_options;
@@ -538,10 +538,10 @@ function wysiwyg_filter_get_style_properties($format) {
   if (!isset($style_properties[$format])) {
     $style_properties[$format] = array();
     foreach (wysiwyg_filter_get_style_property_groups() as $group => $group_info) {
-      $allowed_styles = array_filter(variable_get('wysiwyg_filter_styles_'. $group .'_'. $format, array()));
+      $allowed_styles = array_filter(variable_get('wysiwyg_filter_styles_' . $group . '_' . $format, array()));
       foreach ($group_info['properties'] as $property => $regexp) {
         if (isset($allowed_styles[$property])) {
-          $style_properties[$format][$property] = '`^'. $regexp .'$`';
+          $style_properties[$format][$property] = '`^' . $regexp . '$`';
         }
       }
     }

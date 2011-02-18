@@ -129,7 +129,7 @@ function _wysiwyg_filter_xss_split($m, $store = FALSE) {
   }
   $attr2 = implode(' ', $attr2);
   $attr2 = preg_replace('/[<>]/', '', $attr2);
-  $attr2 = strlen($attr2) ? ' '. $attr2 : '';
+  $attr2 = strlen($attr2) ? ' ' . $attr2 : '';
 
   return "<$elem$attr2$xhtml_slash>";
 }
@@ -185,13 +185,15 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
       case 1:
         // Equals sign or valueless ("selected").
         if (preg_match('/^\s*=\s*/', $attr)) {
-          $working = 1; $mode = 2;
+          $working = 1;
+          $mode = 2;
           $attr = preg_replace('/^\s*=\s*/', '', $attr);
           break;
         }
 
         if (preg_match('/^\s+/', $attr)) {
-          $working = 1; $mode = 0;
+          $working = 1;
+          $mode = 0;
           if (!$skip) {
             $attrarr[$attrname] = array();
           }
@@ -204,7 +206,10 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
         // Attribute value, a URL after href= for instance.
         if (preg_match('/^"([^"]*)"(\s+|$)/', $attr, $match)) {
           if (!$skip) {
-            $attrarr[$attrname] = array('value' => $match[1], 'delimiter' => '"');
+            $attrarr[$attrname] = array(
+              'value' => $match[1],
+              'delimiter' => '"',
+            );
           }
           $working = 1;
           $mode = 0;
@@ -214,18 +219,26 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
 
         if (preg_match("/^'([^']*)'(\s+|$)/", $attr, $match)) {
           if (!$skip) {
-            $attrarr[$attrname] = array('value' => $match[1], 'delimiter' => '\'');
+            $attrarr[$attrname] = array(
+              'value' => $match[1],
+              'delimiter' => '\'',
+            );
           }
-          $working = 1; $mode = 0;
+          $working = 1;
+          $mode = 0;
           $attr = preg_replace("/^'[^']*'(\s+|$)/", '', $attr);
           break;
         }
 
         if (preg_match("%^([^\s\"']+)(\s+|$)%", $attr, $match)) {
           if (!$skip) {
-            $attrarr[$attrname] = array('value' => $match[1], 'delimiter' => '"');
+            $attrarr[$attrname] = array(
+              'value' => $match[1],
+              'delimiter' => '"',
+            );
           }
-          $working = 1; $mode = 0;
+          $working = 1;
+          $mode = 0;
           $attr = preg_replace("%^[^\s\"']+(\s+|$)%", '', $attr);
         }
 
@@ -264,7 +277,10 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
     // When no attribute value has been specified in parsed HTML stream,
     // then supply default value if provided by input format settings.
     if (!isset($attrinfo['value']) && isset($allowed_attributes[$attrname]['default'])) {
-      $attrarr[$attrname] = array('value' => $allowed_attributes[$attrname]['default'], 'delimiter' => '"');
+      $attrarr[$attrname] = array(
+        'value' => $allowed_attributes[$attrname]['default'],
+        'delimiter' => '"',
+      );
     }
   }
 
@@ -359,7 +375,7 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
           }
 
           // Sanitized property name and value (check_plain'd here).
-          $sanitized_properties[] = $property_name .':'. check_plain($property_value);
+          $sanitized_properties[] = $property_name . ':' . check_plain($property_value);
         }
 
         if (empty($sanitized_properties)) {
@@ -422,7 +438,7 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
         if ($element == 'a' && $attrname == 'href' && $nofollow_policy != 'disabled' && !$add_nofollow) {
           $domain_found = FALSE;
           foreach ($nofollow_domains as $domain) {
-            if (preg_match('#://.*'. $domain .'([^a-z0-9]|$)#i', $attrinfo['value'])) {
+            if (preg_match('#://.*' . $domain . '([^a-z0-9]|$)#i', $attrinfo['value'])) {
               $domain_found = TRUE;
               break;
             }
@@ -434,7 +450,7 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
       }
 
       // Build parsed attribute value.
-      $parsed_attribute .= '='. $attrinfo['delimiter'] . $attrinfo['value'] . $attrinfo['delimiter'];
+      $parsed_attribute .= '=' . $attrinfo['delimiter'] . $attrinfo['value'] . $attrinfo['delimiter'];
     }
 
     $parsed_attributes[$attrname] = $parsed_attribute;
@@ -447,7 +463,7 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
     }
     else if (strpos($parsed_attributes['rel'], 'nofollow') === FALSE) {
       // Since we know the attribute is well formed, we can use substr(), which is faster than preg_replace().
-      $parsed_attributes['rel'] = substr($parsed_attributes['rel'], 0, -1) .' nofollow'. substr($parsed_attributes['rel'], -1);
+      $parsed_attributes['rel'] = substr($parsed_attributes['rel'], 0, -1) . ' nofollow' . substr($parsed_attributes['rel'], -1);
     }
   }
 
@@ -471,7 +487,10 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
  *   Cleaned up version of $string.
  */
 function wysiwyg_filter_xss_bad_protocol($string) {
-  $allowed_protocols = array('http' => 1, 'https' => 1);
+  $allowed_protocols = array(
+    'http' => 1,
+    'https' => 1,
+  );
 
   // Iteratively remove any invalid protocol found.
 
