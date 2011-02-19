@@ -58,33 +58,6 @@ EOT;
 }
 
 /**
- * Get allowed valid_elements for the given format ID.
- *
- * @param int $format
- *   Input format identifier.
- * @param boolean $parsed
- *   TRUE to return a preparsed array, FALSE to return a string.
- * @return mixed
- *   When $parsed is FALSE: returns a string as entered by the user in
- *                          in the filter settings form.
- *   When $parsed is TRUE : returns a preparsed array of valid_elements
- *                          information.
- *
- * @see wysiwyg_filter_settings_filter_submit()
- * @see wysiwyg_filter_parse_valid_elements()
- */
-function wysiwyg_filter_get_valid_elements($format, $parsed = FALSE) {
-  if ($parsed) {
-    if (!($valid_elements = variable_get('wysiwyg_filter_valid_elements_parsed_' . $format, NULL))) {
-      $valid_elements = wysiwyg_filter_default_valid_elements();
-      $valid_elements = wysiwyg_filter_parse_valid_elements($valid_elements);
-    }
-    return $valid_elements;
-  }
-  return variable_get('wysiwyg_filter_valid_elements_raw_' . $format, wysiwyg_filter_default_valid_elements());
-}
-
-/**
  * Get HTML elements blacklist.
  */
 function wysiwyg_filter_get_elements_blacklist() {
@@ -507,19 +480,21 @@ function wysiwyg_filter_get_style_property_groups() {
  *
  * @param int $format
  *   Input format identifier.
+ * @param int $settings
+ *   Filter settings.
  * @return array
  */
-function wysiwyg_filter_get_filter_options($format) {
+function wysiwyg_filter_get_filter_options($format, $settings) {
   $filter_options = array(
-    'valid_elements' => wysiwyg_filter_get_valid_elements($format, TRUE),
-    'allow_comments' => variable_get('wysiwyg_filter_allow_comments_' . $format, 0),
-    'style_properties' => wysiwyg_filter_get_style_properties($format),
-    'nofollow_policy' => variable_get('wysiwyg_filter_nofollow_policy_' . $format, 'whitelist'),
-    'nofollow_domains' => variable_get('wysiwyg_filter_nofollow_domains_' . $format, array()),
+    'valid_elements' => wysiwyg_filter_parse_valid_elements($settings['wysiwyg_filter_valid_elements_raw_' . $format]),
+    'allow_comments' => $settings['wysiwyg_filter_allow_comments_' . $format],
+    'style_properties' => wysiwyg_filter_get_style_properties($format, $settings),
+    'nofollow_policy' => $settings['wysiwyg_filter_nofollow_policy_' . $format],
+    'nofollow_domains' => $settings['wysiwyg_filter_nofollow_domains_' . $format],
   );
   foreach (wysiwyg_filter_get_advanced_rules() as $rule_key => $rule_info) {
     $filter_options[$rule_key] = array();
-    foreach (variable_get('wysiwyg_filter_' . $rule_key . '_' . $format, array()) as $rule) {
+    foreach ($settings['wysiwyg_filter_' . $rule_key . '_' . $format] as $rule) {
       $filter_options[$rule_key][] = '`^' . str_replace("\xFF", $rule_info['asterisk_expansion'], preg_quote(str_replace('*', "\xFF", $rule), '`')) . '$`';
     }
   }
@@ -531,14 +506,16 @@ function wysiwyg_filter_get_filter_options($format) {
  *
  * @param int $format
  *   Input format identifier.
+ * @param int $settings
+ *   Filter settings.
  * @return array
  */
-function wysiwyg_filter_get_style_properties($format) {
+function wysiwyg_filter_get_style_properties($format, $settings) {
   static $style_properties = array();
   if (!isset($style_properties[$format])) {
     $style_properties[$format] = array();
     foreach (wysiwyg_filter_get_style_property_groups() as $group => $group_info) {
-      $allowed_styles = array_filter(variable_get('wysiwyg_filter_styles_' . $group . '_' . $format, array()));
+      $allowed_styles = array_filter($settings['wysiwyg_filter_styles_' . $group . '_' . $format]);
       foreach ($group_info['properties'] as $property => $regexp) {
         if (isset($allowed_styles[$property])) {
           $style_properties[$format][$property] = '`^' . $regexp . '$`';

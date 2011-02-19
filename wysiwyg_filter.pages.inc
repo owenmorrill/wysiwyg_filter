@@ -22,7 +22,7 @@
  * @return string
  *   Filtered HTML text.
  */
-function wysiwyg_filter_process($text, $format) {
+function wysiwyg_filter_filter_wysiwyg_process($text, $filter, $format, $langcode, $cache, $cache_id) {
   // Only operate on valid UTF-8 strings. This is necessary to prevent cross
   // site scripting issues on Internet Explorer 6.
   if (!drupal_validate_utf8($text)) {
@@ -33,7 +33,7 @@ function wysiwyg_filter_process($text, $format) {
   module_load_include('inc', 'wysiwyg_filter');
 
   // Store input filter options.
-  _wysiwyg_filter_xss_split(wysiwyg_filter_get_filter_options($format), TRUE);
+  _wysiwyg_filter_xss_split(wysiwyg_filter_get_filter_options($format, $filter->settings), TRUE);
 
   // Remove NUL characters (ignored by some browsers).
   $text = str_replace(chr(0), '', $text);
