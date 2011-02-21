@@ -478,23 +478,23 @@ function wysiwyg_filter_get_style_property_groups() {
 /**
  * Get filter options.
  *
- * @param int $format
+ * @param int $format_name
  *   Input format identifier.
  * @param int $settings
  *   Filter settings.
  * @return array
  */
-function wysiwyg_filter_get_filter_options($format, $settings) {
+function wysiwyg_filter_get_filter_options($format_name, $settings) {
   $filter_options = array(
-    'valid_elements' => wysiwyg_filter_parse_valid_elements($settings['wysiwyg_filter_valid_elements_raw_' . $format]),
-    'allow_comments' => $settings['wysiwyg_filter_allow_comments_' . $format],
-    'style_properties' => wysiwyg_filter_get_style_properties($format, $settings),
-    'nofollow_policy' => $settings['wysiwyg_filter_nofollow_policy_' . $format],
-    'nofollow_domains' => $settings['wysiwyg_filter_nofollow_domains_' . $format],
+    'valid_elements' => wysiwyg_filter_parse_valid_elements($settings['valid_elements']),
+    'allow_comments' => $settings['allow_comments'],
+    'style_properties' => wysiwyg_filter_get_style_properties($format_name, $settings),
+    'nofollow_policy' => $settings['nofollow_policy'],
+    'nofollow_domains' => $settings['nofollow_domains'],
   );
   foreach (wysiwyg_filter_get_advanced_rules() as $rule_key => $rule_info) {
     $filter_options[$rule_key] = array();
-    foreach ($settings['wysiwyg_filter_' . $rule_key . '_' . $format] as $rule) {
+    foreach ($settings["rule_$rule_key"] as $rule) {
       $filter_options[$rule_key][] = '`^' . str_replace("\xFF", $rule_info['asterisk_expansion'], preg_quote(str_replace('*', "\xFF", $rule), '`')) . '$`';
     }
   }
@@ -504,26 +504,26 @@ function wysiwyg_filter_get_filter_options($format, $settings) {
 /**
  * Get allowed style properties.
  *
- * @param int $format
+ * @param int $format_name
  *   Input format identifier.
  * @param int $settings
  *   Filter settings.
  * @return array
  */
-function wysiwyg_filter_get_style_properties($format, $settings) {
+function wysiwyg_filter_get_style_properties($format_name, $settings) {
   static $style_properties = array();
-  if (!isset($style_properties[$format])) {
-    $style_properties[$format] = array();
+  if (!isset($style_properties[$format_name])) {
+    $style_properties[$format_name] = array();
     foreach (wysiwyg_filter_get_style_property_groups() as $group => $group_info) {
-      $allowed_styles = array_filter($settings['wysiwyg_filter_styles_' . $group . '_' . $format]);
+      $allowed_styles = array_filter($settings["style_$group"]);
       foreach ($group_info['properties'] as $property => $regexp) {
         if (isset($allowed_styles[$property])) {
-          $style_properties[$format][$property] = '`^' . $regexp . '$`';
+          $style_properties[$format_name][$property] = '`^' . $regexp . '$`';
         }
       }
     }
     // Sort style properties alphabetically (for filter tips).
-    ksort($style_properties[$format]);
+    ksort($style_properties[$format_name]);
   }
-  return $style_properties[$format];
+  return $style_properties[$format_name];
 }

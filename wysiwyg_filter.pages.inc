@@ -33,7 +33,7 @@ function wysiwyg_filter_filter_wysiwyg_process($text, $filter, $format, $langcod
   module_load_include('inc', 'wysiwyg_filter');
 
   // Store input filter options.
-  _wysiwyg_filter_xss_split(wysiwyg_filter_get_filter_options($format, $filter->settings), TRUE);
+  _wysiwyg_filter_xss_split(wysiwyg_filter_get_filter_options($format->format, $filter->settings), TRUE);
 
   // Remove NUL characters (ignored by some browsers).
   $text = str_replace(chr(0), '', $text);
@@ -438,6 +438,7 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
         if ($element == 'a' && $attrname == 'href' && $nofollow_policy != 'disabled' && !$add_nofollow) {
           $domain_found = FALSE;
           foreach ($nofollow_domains as $domain) {
+            $domain = str_replace('.', '\.', $domain); // escape dots
             if (preg_match('#://.*' . $domain . '([^a-z0-9]|$)#i', $attrinfo['value'])) {
               $domain_found = TRUE;
               break;

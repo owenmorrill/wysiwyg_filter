@@ -15,20 +15,20 @@ function wysiwyg_filter_filter_info() {
   // Load common functions.
   module_load_include('inc', 'wysiwyg_filter');
   $filters = array();
-  // set defaults, all will be postfixed by format name
   global $base_url;
   $parts = parse_url($base_url);
+  
   $defaults = array(
-    'wysiwyg_filter_valid_elements_raw_' => wysiwyg_filter_default_valid_elements(),
-    'wysiwyg_filter_allow_comments_' => 0,
-    'wysiwyg_filter_nofollow_policy_' => 'whitelist',
-    'wysiwyg_filter_nofollow_domains_' => array($parts['host']),
+    'valid_elements_raw' => wysiwyg_filter_default_valid_elements(),
+    'allow_comments' => 0,
+    'nofollow_policy' => 'whitelist',
+    'nofollow_domains' => array($parts['host']),
   );
   foreach(wysiwyg_filter_get_style_property_groups() as $group => $stuff):
-      $defaults["wysiwyg_filter_styles_${group}_"] = array();
+      $defaults["style_$group"] = array();
   endforeach;
   foreach(wysiwyg_filter_get_advanced_rules() as $rule => $stuff):
-      $defaults["wysiwyg_filter_${rule}_"] = array();
+      $defaults["rule_$rule"] = array();
   endforeach;
   
   $filters['wysiwyg'] = array(
@@ -36,8 +36,8 @@ function wysiwyg_filter_filter_info() {
     'description' => t('Allows you to restrict whether users can post HTML and which tags and attributes per HTML tag to filter out.'), 
     'process callback' => 'wysiwyg_filter_filter_wysiwyg_process', 
     'settings callback' => 'wysiwyg_filter_filter_wysiwyg_settings', 
-    'default settings' => $defaults, 
     'tips callback' => 'wysiwyg_filter_filter_wysiwyg_tips',
+    'default settings' => $defaults
   );
   return $filters;
 }
@@ -45,11 +45,11 @@ function wysiwyg_filter_filter_info() {
 /**
  * Implements hook_filter_FILTER_tips().
  */
-function wysiwyg_filter_filter_wysiwyg_tips($filter, $format, $long = FALSE) {
+function wysiwyg_filter_filter_wysiwyg_tips($filter, $format_name, $long = FALSE) {
   // Load common functions.
   module_load_include('inc', 'wysiwyg_filter');
 
-  $filter_options = wysiwyg_filter_get_filter_options($format, $filter->settings);
+  $filter_options = wysiwyg_filter_get_filter_options($format_name, $filter->settings);
   $tips = array();
   if (!empty($filter_options['valid_elements'])) {
     $tags = array();
@@ -69,18 +69,18 @@ function wysiwyg_filter_filter_wysiwyg_tips($filter, $format, $long = FALSE) {
 /**
  * Implementation of wysiwyg_editor_settings_alter().
  */
-function wysiwyg_filter_wysiwyg_editor_settings_alter(&$settings, $context) {
+function wysiwyg_filter_wysiwyg_editor_settings_alter(&$editor_settings, $context) {
   // Provide the valid_elements option to TinyMCE editors, only if the WYSIWYG
   // Filter is enabled in the input format related to the current given context.
   if ($context['profile']->editor == 'tinymce'):
     // first get the filters and their settings
     if (isset($context['profile']->format)): 
-      $format = $context['profile']->format;
-      $filters = filter_list_format($format);
+      $format_name = $context['profile']->format;
+      $filters = filter_list_format($format_name);
       if($filters && array_key_exists('wysiwyg', $filters)):
         $filter = $filters['wysiwyg'];
-        $valid_elements = $filter->settings['wysiwyg_filter_valid_elements_raw_' . $format];
-        $settings['valid_elements'] = preg_replace('#\s+#', '', $valid_elements);
+        $settings = $filter->settings;
+        $editor_settings['valid_elements'] = preg_replace('#\s+#', '', $settings['valid_elements']);
       endif;
     endif;
   endif;

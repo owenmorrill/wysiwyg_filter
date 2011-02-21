@@ -16,33 +16,34 @@
  * * remove format suffix, will be first array index
  * * care for pre- and post-processing, or remove it like parsed-elements
  * * rewrite validate to get correct values like $form['filters']['settings'][$name] / $form_state['values']['filters'][$name]['settings']
+ * 
  */
 function wysiwyg_filter_filter_wysiwyg_settings(&$form, &$form_state, $filter, $format, $defaults, $filters) {
-  $format_name = $format->format;
-  // set defaults, postfix them with format name first
-  foreach($defaults as $k => $v):
-    $postfixed_defaults[$k . $format_name] = $v;
-  endforeach;
-  $filter->settings += $postfixed_defaults;
-  $settings = $filter->settings;
-  
   global $base_url;
   drupal_add_css(drupal_get_path('module', 'wysiwyg_filter') . '/wysiwyg_filter.admin.css', array('preprocess' => FALSE));
-
   // Load common functions.
   module_load_include('inc', 'wysiwyg_filter');
 
-  $valid_elements = $settings['wysiwyg_filter_valid_elements_raw_' . $format_name];
+  $settings = $filter->settings;
+  $settings += $defaults;
+  
+  // carry over settings for other formats
+  $filterform = array();
+  
+  // *** valid elements ***
+  $valid_elements = $settings['valid_elements'];
+  $valid_elements_rows = min(20, max(5, substr_count($valid_elements, "\n") + 2));
+  // show blacklisted elements in description
   $elements_blacklist = wysiwyg_filter_get_elements_blacklist();
   foreach ($elements_blacklist as $i => $element) {
     $elements_blacklist[$i] = '<' . $element . '>';
   }
-  $filterform['wysiwyg_filter_valid_elements_raw_' . $format_name] = array(
+  $filterform['valid_elements'] = array(
     '#type' => 'textarea',
     '#title' => t('HTML elements and attributes'),
     '#default_value' => $valid_elements,
     '#cols' => 60,
-    '#rows' => min(20, max(5, substr_count($valid_elements, "\n") + 2)),
+    '#rows' => $valid_elements_rows,
     '#description' => t('<p>
 This option allows you to specify which HTML elements and attributes are allowed in <a href="@valid-elements">TinyMCE valid_elements format</a>.
 </p>
@@ -65,17 +66,19 @@ This option allows you to specify which HTML elements and attributes are allowed
     )),
   );
 
-  $filterform['wysiwyg_filter_allow_comments_' . $format_name] = array(
+  // *** allow comments ***
+  $filterform['allow_comments'] = array(
     '#type' => 'radios',
     '#title' => t('HTML comments'),
     '#options' => array(
       0 => t('Disabled'),
       1 => t('Enabled'),
     ),
-    '#default_value' => $settings['wysiwyg_filter_allow_comments_' . $format_name],
+    '#default_value' => $settings['allow_comments'],
     '#description' => t('Use this option to allow HTML comments.'),
   );
 
+  // *** Style properties ***
   $filterform['styles'] = array(
     '#title' => t('Style properties'),
     '#description' => '<p>' . t('This section allows you to select which style properties can be used for HTML elements where the &quot;style&quot; attribute has been allowed. The <em>WYSIWYG Filter</em> will strip out style properties (and their values) not explicitly enabled here. On the other hand, for allowed style properties the <em>WYSIWYG Filter</em> will check their values for strict CSS syntax and strip out those that do not match.') . '</p>' .
@@ -85,33 +88,30 @@ This option allows you to specify which HTML elements and attributes are allowed
   $enabled_style_properties = array();
   $i = 0;
   foreach ($style_property_groups as $group => $group_info) {
-    $style_properties = $settings['wysiwyg_filter_styles_' . $group . '_' . $format_name];
+    $style_properties = $settings["style_$group"];
     $enabled_style_properties += array_filter($style_properties);
-    $filterform['wysiwyg_filter_styles_' . $group . '_' . $format_name] = array(
+    $filterform["style_$group"] = array(
       '#type' => 'checkboxes',
       '#title' => $group_info['title'],
       '#default_value' => $style_properties,
       '#options' => drupal_map_assoc(array_keys($group_info['properties'])),
       '#checkall' => TRUE,
       '#prefix' => '<div class="wysiwyg-filter-style-properties-group">',
-      '#suffix' => '</div>',
+      '#suffix' => '</div>'. (($i % 3) == 2?'<br style="clear:both"/>':''),
     );
-    if (($i % 3) == 2) {
-      $filterform['wysiwyg_filter_styles_' . $group . '_' . $format_name]['#suffix'] .= '<br style="clear:both"/>';
-    }
     $i++;
   }
 
-  $filterform['advanced_rules'] = array(
+  // *** Advanced rules ***
+  $filterform['rules'] = array(
     '#title' => t('Advanced rules'),
     '#prefix' => '<br style="clear:both"/>',
     '#description' => '<p>' . t('Use the following options to configure additional rules for certain HTML element attributes. As a safety measure, these rules should be defined explicitly. Otherwise, the corresponding HTML element attributes will be ignored from user input.') . '</p>',
   );
-  _wysiwyg_filter_clear_messages();
-  $valid_elements_parsed = wysiwyg_filter_parse_valid_elements($settings['wysiwyg_filter_valid_elements_raw_' . $format_name]);
+  $valid_elements_parsed = wysiwyg_filter_parse_valid_elements($settings['valid_elements']);
   foreach (wysiwyg_filter_get_advanced_rules() as $rule_key => $rule_info) {
-    $field_name = 'wysiwyg_filter_' . $rule_key . '_' . $format_name;
-    $default_value = implode(",\n", $settings[$field_name]);
+    $field_name = "rule_$rule_key";
+    $default_value = wysiwyg_filter_array2csv($settings[$field_name]);
     $filterform[$field_name] = array(
       '#type' => 'textarea',
       '#title' => $rule_info['title'],
@@ -128,11 +128,12 @@ This option allows you to specify which HTML elements and attributes are allowed
     }
   }
 
+  // *** Nofollow properties ***
   $filterform['nofollow'] = array(
     '#title' => t('Spam link deterrent settings'),
     '#description' => t('As a measure to reduce the effectiveness of spam links, it is often recommended to add rel=&quot;nofollow&quot; to posted links leading to external sites. The WYSIWYG Filter can easily do this for you while HTML is being processed with almost no additional performance impact.'),
   );
-  $filterform['wysiwyg_filter_nofollow_policy_' . $format_name] = array(
+  $filterform['nofollow_policy'] = array(
     '#type' => 'radios',
     '#title' => t('Policy'),
     '#options' => array(
@@ -140,15 +141,15 @@ This option allows you to specify which HTML elements and attributes are allowed
       'whitelist' => t('Whitelist - Add rel=&quot;nofollow&quot; to all links except those leading to domain names specified in the list below.'),
       'blacklist' => t('Blacklist - Add rel=&quot;nofollow&quot; to all links leading to domain names specified in the list below.'),
     ),
-    '#default_value' => $settings['wysiwyg_filter_nofollow_policy_' . $format_name],
+    '#default_value' => $settings['nofollow_policy'],
     '#description' => t('If you choose the whitelist option, be sure to add your own domain names to the list!'),
   );
   $parts = parse_url($base_url);
   // Note that domains list is stored by our submit handler in array form where
   // dots have been escaped, so we need here to revert the process to get a clean
   // string for user input where dots are unescaped.
-  $nofollow_domains = str_replace('\.', '.', implode(",\n", $settings['wysiwyg_filter_nofollow_domains_' . $format_name]));
-  $filterform['wysiwyg_filter_nofollow_domains_' . $format_name] = array(
+  $nofollow_domains = wysiwyg_filter_array2csv($settings['nofollow_domains']);
+  $filterform['nofollow_domains'] = array(
     '#type' => 'textarea',
     '#title' => t('Domains list'),
     '#default_value' => $nofollow_domains,
@@ -157,12 +158,10 @@ This option allows you to specify which HTML elements and attributes are allowed
     '#description' => t('Enter a comma separated list of top level domain names. Note that all subdomains will also be included. Example: example.com will match example.com, www.example.com, etc.'),
   );
 
-  /*
   $form['#validate'][] = 'wysiwyg_filter_filter_wysiwyg_settings_validate';
   // Add the submit callback to the beginning of the array because we need
   // to prepare data for system_settings_form_submit().
   array_unshift($form['#submit'], 'wysiwyg_filter_filter_wysiwyg_settings_submit');
-  */
   return $filterform;
 }
 
@@ -224,13 +223,12 @@ function _wysiwyg_filter_clear_messages() {
  * @ingroup forms
  */
 function wysiwyg_filter_filter_wysiwyg_settings_validate($form, &$form_state) {
-  // DEBUG
-  drupal_set_message(nl2br(htmlspecialchars(print_r($form_state['values'],1))));
-  $format = $form_state['values']['format'];
+  $values =& $form_state['values']['filters']['wysiwyg']['settings'];
 
+  // *** validate valid_elements ***
   // Check elements against hardcoded backlist.
   $elements_blacklist = wysiwyg_filter_get_elements_blacklist();
-  $valid_elements = trim($form_state['values']['wysiwyg_filter_valid_elements_raw_' . $format]);
+  $valid_elements = trim($values['valid_elements']);
   $valid_elements = wysiwyg_filter_parse_valid_elements($valid_elements);
   $forbidden_elements = array();
   foreach (array_keys($valid_elements) as $element) {
@@ -239,12 +237,13 @@ function wysiwyg_filter_filter_wysiwyg_settings_validate($form, &$form_state) {
     }
   }
   if (!empty($forbidden_elements)) {
-    form_set_error('wysiwyg_filter_valid_elements_raw_' . $format, t('The following elements cannot be allowed: %elements.', array('%elements' => implode(', ', $forbidden_elements))));
+    form_set_error('valid_elements', t('The following elements cannot be allowed: %elements.', array('%elements' => implode(', ', $forbidden_elements))));
   }
 
+  // *** validate nofollow_domains ***
   foreach (wysiwyg_filter_get_advanced_rules() as $rule_key => $rule_info) {
-    $field_name = 'wysiwyg_filter_' . $rule_key . '_' . $format;
-    $expressions = array_filter(explode(',', preg_replace('#\s+#', ',', trim($form_state['values'][$field_name]))));
+    $field_name = "rule_$rule_key";
+    $expressions = array_filter(explode(',', preg_replace('#\s+#', ',', trim($values[$field_name])))); // form2db
     $errors = array();
     foreach ($expressions as $expression) {
       if (preg_match('`[*?]\*|\*\?`', $expression)) {
@@ -259,10 +258,11 @@ function wysiwyg_filter_filter_wysiwyg_settings_validate($form, &$form_state) {
     }
   }
 
-  $nofollow_domains = array_filter(explode(',', preg_replace('#\s+#', ',', $form_state['values']['wysiwyg_filter_nofollow_domains_' . $format])));
+  // *** validate nofollow_domains ***
+  $nofollow_domains = array_filter(explode(',', preg_replace('#\s+#', ',', $values['nofollow_domains']))); // form2db
   foreach ($nofollow_domains as $nofollow_domain) {
     if (!preg_match('#^([a-z0-9]([-a-z0-9]*)?\.)+([a-z]+)$#i', $nofollow_domain)) {
-      form_set_error('wysiwyg_filter_nofollow_domains_' . $format, t('Invalid domain %domain. Please, enter a comma separated list of valid domain names.', array('%domain' => $nofollow_domain)));
+      form_set_error('nofollow_domains', t('Invalid domain %domain. Please, enter a comma separated list of valid domain names.', array('%domain' => $nofollow_domain)));
     }
   }
 }
@@ -276,25 +276,25 @@ function wysiwyg_filter_filter_wysiwyg_settings_validate($form, &$form_state) {
  * @ingroup forms
  */
 function wysiwyg_filter_filter_wysiwyg_settings_submit($form, &$form_state) {
-  $format = $form_state['values']['format'];
-
-  // Save trimmed version of user input.
-  $valid_elements = trim($form_state['values']['wysiwyg_filter_valid_elements_raw_' . $format]);
-  $form_state['values']['wysiwyg_filter_valid_elements_raw_' . $format] = $valid_elements;
-
-  // Store an additional parsed version of valid_elements data.
-  $valid_elements = wysiwyg_filter_parse_valid_elements($valid_elements);
-  $form_state['values']['wysiwyg_filter_valid_elements_parsed_' . $format] = $valid_elements;
-
-  // Transform user input (strings) into arrays.
+  $values =& $form_state['values']['filters']['wysiwyg']['settings'];
+    
+  // *** prepare valid_elements - just trim ***
+  $values['valid_elements'] = trim($values['valid_elements']);
+  
+  // *** prepare rules - csv2array ***
   foreach (array_keys(wysiwyg_filter_get_advanced_rules()) as $rule_key) {
-    $field_name = 'wysiwyg_filter_' . $rule_key . '_' . $format;
-    $expressions = array_filter(explode(',', preg_replace('#\s+#', ',', trim($form_state['values'][$field_name]))));
-    $form_state['values'][$field_name] = $expressions;
+    $field_name = "rule_$rule_key";
+    $values[$field_name] = wysiwyg_filter_csv2array($values[$field_name]);
   }
 
-  // Transform user input (strings) into an array.
-  // Dots are escaped to speed up a little the job of the filter process.
-  $nofollow_domains = array_filter(explode(',', preg_replace('#\s+#', ',', str_replace('.', '\.', $form_state['values']['wysiwyg_filter_nofollow_domains_' . $format]))));
-  $form_state['values']['wysiwyg_filter_nofollow_domains_' . $format] = $nofollow_domains;
+  // *** prepare nofollow_domains - csv2array ***
+  $values['nofollow_domains'] = wysiwyg_filter_csv2array($values['nofollow_domains']);
+}
+
+function wysiwyg_filter_csv2array($v, $space2comma = TRUE) {
+  IF($space2comma) $v = preg_replace('#\s+#', ',', $v);
+  return array_filter(explode(',', $v));
+}
+function wysiwyg_filter_array2csv($v) {
+  return implode(",\n", $v);;
 }
