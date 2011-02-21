@@ -6,6 +6,8 @@
  * HTML elements, attributes and style properties are allowed.
  */
 
+module_load_include('inc', 'wysiwyg_filter', 'wysiwyg_filter.admin');
+
 /**
  * Implements hook_filter_info().
  */
