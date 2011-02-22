@@ -19,7 +19,7 @@ function wysiwyg_filter_filter_info() {
   $parts = parse_url($base_url);
   
   $defaults = array(
-    'valid_elements_raw' => wysiwyg_filter_default_valid_elements(),
+    'valid_elements' => wysiwyg_filter_default_valid_elements(),
     'allow_comments' => 0,
     'nofollow_policy' => 'whitelist',
     'nofollow_domains' => array($parts['host']),

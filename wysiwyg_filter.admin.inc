@@ -158,11 +158,19 @@ This option allows you to specify which HTML elements and attributes are allowed
     '#description' => t('Enter a comma separated list of top level domain names. Note that all subdomains will also be included. Example: example.com will match example.com, www.example.com, etc.'),
   );
 
+  return $filterform;
+}
+
+/*
+ * Implements hook_form_FORM_ID_alter
+ * 
+ * add validate and submit handlers
+ */
+function wysiwyg_filter_form_filter_admin_format_form_alter(&$form, &$form_state, $form_id) {
   $form['#validate'][] = 'wysiwyg_filter_filter_wysiwyg_settings_validate';
   // Add the submit callback to the beginning of the array because we need
   // to prepare data for system_settings_form_submit().
   array_unshift($form['#submit'], 'wysiwyg_filter_filter_wysiwyg_settings_submit');
-  return $filterform;
 }
 
 /**
@@ -291,10 +299,23 @@ function wysiwyg_filter_filter_wysiwyg_settings_submit($form, &$form_state) {
   $values['nofollow_domains'] = wysiwyg_filter_csv2array($values['nofollow_domains']);
 }
 
+/*
+ * CSV to Array
+ * 
+ * @param atring $v
+ * @param bool $space2comma - shall we convet whitespace to commas before processing?
+ * @return array
+ */
 function wysiwyg_filter_csv2array($v, $space2comma = TRUE) {
   IF($space2comma) $v = preg_replace('#\s+#', ',', $v);
   return array_filter(explode(',', $v));
 }
-function wysiwyg_filter_array2csv($v) {
-  return implode(",\n", $v);;
+/*
+ * Array to CSV
+ * 
+ * @param array $v
+ * @return string
+ */
+function wysiwyg_filter_array2csv($v, $separator = ",\n") {
+  return implode($separator, $v);
 }
