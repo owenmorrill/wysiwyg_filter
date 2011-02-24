@@ -45,11 +45,11 @@ function wysiwyg_filter_filter_info() {
 /**
  * Implements hook_filter_FILTER_tips().
  */
-function wysiwyg_filter_filter_wysiwyg_tips($filter, $format_name, $long = FALSE) {
+function wysiwyg_filter_filter_wysiwyg_tips($filter, $format, $long = FALSE) {
   // Load common functions.
   module_load_include('inc', 'wysiwyg_filter');
 
-  $filter_options = wysiwyg_filter_get_filter_options($format_name, $filter->settings);
+  $filter_options = wysiwyg_filter_get_filter_options($format->format, $filter->settings);
   $tips = array();
   if (!empty($filter_options['valid_elements'])) {
     $tags = array();
