@@ -79,8 +79,10 @@ function wysiwyg_filter_wysiwyg_editor_settings_alter(&$editor_settings, $contex
       $filters = filter_list_format($format_name);
       if($filters && array_key_exists('wysiwyg', $filters)):
         $filter = $filters['wysiwyg'];
-        $settings = $filter->settings;
-        $editor_settings['valid_elements'] = preg_replace('#\s+#', '', $settings['valid_elements']);
+        if($filter->status != 0) {
+          $settings = $filter->settings;
+          $editor_settings['valid_elements'] = preg_replace('#\s+#', '', $settings['valid_elements']);
+        }
       endif;
     endif;
   endif;
