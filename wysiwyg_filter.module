@@ -6,7 +6,11 @@
  * HTML elements, attributes and style properties are allowed.
  */
 
+// todo: more intelligent include policy
+// beware: it filter process function in ...page.inc is not included,
+// the whole filter is silently ignored. see http://drupal.org/node/1151506
 module_load_include('inc', 'wysiwyg_filter', 'wysiwyg_filter.admin');
+module_load_include('inc', 'wysiwyg_filter', 'wysiwyg_filter.pages');
 
 /**
  * Implements hook_filter_info().
