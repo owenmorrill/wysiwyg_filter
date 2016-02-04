@@ -429,6 +429,9 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
         // Element ID is valid, check_plain result.
         $attrinfo['value'] = check_plain($attrinfo['value']);
       }
+      elseif ($attrname == 'media') {
+        $attrinfo['value'] = check_plain($attrinfo['value']);
+      }
       else {
         // All attribute values are checked for bad protocols. This is the same
         // exact method used by Drupal's filter_xss().
