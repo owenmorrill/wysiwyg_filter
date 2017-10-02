@@ -16,7 +16,7 @@
  * * remove format suffix, will be first array index
  * * care for pre- and post-processing, or remove it like parsed-elements
  * * rewrite validate to get correct values like $form['filters']['settings'][$name] / $form_state['values']['filters'][$name]['settings']
- * 
+ *
  */
 function wysiwyg_filter_filter_wysiwyg_settings(&$form, &$form_state, $filter, $format, $defaults, $filters) {
   global $base_url;
@@ -26,10 +26,10 @@ function wysiwyg_filter_filter_wysiwyg_settings(&$form, &$form_state, $filter, $
 
   $settings = $filter->settings;
   $settings += $defaults;
-  
+
   // carry over settings for other formats
   $filterform = array();
-  
+
   // *** valid elements ***
   $valid_elements = $settings['valid_elements'];
   $valid_elements_rows = min(20, max(5, substr_count($valid_elements, "\n") + 2));
@@ -163,7 +163,7 @@ This option allows you to specify which HTML elements and attributes are allowed
 
 /*
  * Implements hook_form_FORM_ID_alter
- * 
+ *
  * add validate and submit handlers
  */
 function wysiwyg_filter_form_filter_admin_format_form_alter(&$form, &$form_state, $form_id) {
@@ -289,10 +289,10 @@ function wysiwyg_filter_filter_wysiwyg_settings_validate($form, &$form_state) {
  */
 function wysiwyg_filter_filter_wysiwyg_settings_submit($form, &$form_state) {
   $values =& $form_state['values']['filters']['wysiwyg']['settings'];
-    
+
   // *** prepare valid_elements - just trim ***
   $values['valid_elements'] = trim($values['valid_elements']);
-  
+
   // *** prepare rules - csv2array ***
   foreach (array_keys(wysiwyg_filter_get_advanced_rules()) as $rule_key) {
     $field_name = "rule_$rule_key";
@@ -305,7 +305,7 @@ function wysiwyg_filter_filter_wysiwyg_settings_submit($form, &$form_state) {
 
 /*
  * CSV to Array
- * 
+ *
  * @param atring $v
  * @param bool $space2comma - shall we convet whitespace to commas before processing?
  * @return array
@@ -316,7 +316,7 @@ function wysiwyg_filter_csv2array($v, $space2comma = TRUE) {
 }
 /*
  * Array to CSV
- * 
+ *
  * @param array $v
  * @return string
  */

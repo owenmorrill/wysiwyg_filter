@@ -152,7 +152,6 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
     $filter_options = $attr;
     return;
   }
-
   // Shortcuts for filter options.
   $allowed_attributes = &$filter_options['valid_elements'][$element];
   $allowed_properties = &$filter_options['style_properties'];
@@ -398,6 +397,7 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
             }
           }
         }
+
         if (empty($valid_names)) {
           // Ignore attribute if no class name remains after validation.
           continue;
@@ -426,6 +426,7 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
           // Ignore attribute if it contains invalid value.
           continue;
         }
+
         // Element ID is valid, check_plain result.
         $attrinfo['value'] = check_plain($attrinfo['value']);
       }
