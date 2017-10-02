@@ -479,6 +479,9 @@ function wysiwyg_filter_get_style_property_groups() {
     $groups['font']['properties']['font-family'] . ')';
   $groups['font']['properties']['font'] = '(?:' . $regexp . ')(?:(?:\s+' . $regexp . ')+)';
 
+  // Allow other modules to alter groups
+  drupal_alter('wysiwyg_filter_style_property_groups', $groups);
+
   return $groups;
 }
 
