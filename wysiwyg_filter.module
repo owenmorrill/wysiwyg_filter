@@ -33,6 +33,7 @@ function wysiwyg_filter_filter_info() {
   endforeach;
   foreach(wysiwyg_filter_get_advanced_rules() as $rule => $stuff):
       $defaults["rule_$rule"] = array();
+      $defaults["rule_bypass_$rule"] = 0;
   endforeach;
 
   $filters['wysiwyg'] = array(

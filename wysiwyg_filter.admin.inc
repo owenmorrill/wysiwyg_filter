@@ -111,6 +111,7 @@ This option allows you to specify which HTML elements and attributes are allowed
   $valid_elements_parsed = wysiwyg_filter_parse_valid_elements($settings['valid_elements']);
   foreach (wysiwyg_filter_get_advanced_rules() as $rule_key => $rule_info) {
     $field_name = "rule_$rule_key";
+    $field_bypass_name = "rule_bypass_$rule_key";
     $default_value = wysiwyg_filter_array2csv($settings[$field_name]);
     $filterform[$field_name] = array(
       '#type' => 'textarea',
@@ -120,10 +121,16 @@ This option allows you to specify which HTML elements and attributes are allowed
       '#rows' => min(10, max(2, substr_count($default_value, "\n") + 2)),
       '#description' => $rule_info['description'],
     );
+    $filterform[$field_bypass_name] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Bypass %rule', array('%rule' => $rule_info['title'])),
+      '#default_value' => !empty($settings[$field_bypass_name]),
+      '#description' => t('Bypassing this rule may lead to security vulnerabilities. Only grant this filter to trusted roles.'),
+    );
 
     // Display warning if the field is empty but the rule definition is not
     // complete.
-    if (empty($default_value) && !_wysiwyg_filter_is_rule_definition_complete($rule_info, $valid_elements_parsed, $enabled_style_properties)) {
+    if (empty($settings[$field_bypass_name]) && empty($default_value) && !_wysiwyg_filter_is_rule_definition_complete($rule_info, $valid_elements_parsed, $enabled_style_properties)) {
       drupal_set_message($rule_info['required_by_message'], 'warning');
     }
   }
@@ -252,21 +259,23 @@ function wysiwyg_filter_filter_wysiwyg_settings_validate($form, &$form_state) {
     form_set_error('valid_elements', t('The following elements cannot be allowed: %elements.', array('%elements' => implode(', ', $forbidden_elements))));
   }
 
-  // *** validate nofollow_domains ***
+  // *** validate advanced rules ***
   foreach (wysiwyg_filter_get_advanced_rules() as $rule_key => $rule_info) {
-    $field_name = "rule_$rule_key";
-    $expressions = array_filter(explode(',', preg_replace('#\s+#', ',', trim($values[$field_name])))); // form2db
-    $errors = array();
-    foreach ($expressions as $expression) {
-      if (preg_match('`[*?]\*|\*\?`', $expression)) {
-        $errors[] = t('Invalid expression %expression. Please, do not use more than one consecutive asterisk (**) or one that is next to a question mark wildcard (?* or *?).', array('%expression' => $expression));
+    if (empty($settings["rule_bypass_$rule_key"])) {
+      $field_name = "rule_$rule_key";
+      $expressions = array_filter(explode(',', preg_replace('#\s+#', ',', trim($values[$field_name])))); // form2db
+      $errors = array();
+      foreach ($expressions as $expression) {
+        if (preg_match('`[*?]\*|\*\?`', $expression)) {
+          $errors[] = t('Invalid expression %expression. Please, do not use more than one consecutive asterisk (**) or one that is next to a question mark wildcard (?* or *?).', array('%expression' => $expression));
+        }
+        if (!preg_match($rule_info['validate_regexp'], $expression)) {
+          $errors[] = t('Invalid expression %expression. Please, check the syntax of the %field field.', array('%expression' => $expression, '%field' => $rule_info['title']));
+        }
       }
-      if (!preg_match($rule_info['validate_regexp'], $expression)) {
-        $errors[] = t('Invalid expression %expression. Please, check the syntax of the %field field.', array('%expression' => $expression, '%field' => $rule_info['title']));
+      if (!empty($errors)) {
+        form_set_error($field_name, implode('<br />', $errors));
       }
-    }
-    if (!empty($errors)) {
-      form_set_error($field_name, implode('<br />', $errors));
     }
   }
 

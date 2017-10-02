@@ -155,9 +155,24 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
   // Shortcuts for filter options.
   $allowed_attributes = &$filter_options['valid_elements'][$element];
   $allowed_properties = &$filter_options['style_properties'];
-  $allowed_style_urls = &$filter_options['style_urls'];
-  $allowed_class_names = &$filter_options['valid_classes'];
-  $allowed_element_ids = &$filter_options['valid_ids'];
+  if ($filter_options['rule_bypass_style_urls']) {
+    $allowed_style_urls = array();
+  }
+  else {
+    $allowed_style_urls = &$filter_options['style_urls'];
+  }
+  $bypass_valid_classes = $filter_options['rule_bypass_valid_classes'];
+  if (!$bypass_valid_classes) {
+    $allowed_class_names = &$filter_options['valid_classes'];
+  }
+  $bypass_valid_ids = $filter_options['rule_bypass_valid_ids'];
+  if ($bypass_valid_ids) {
+    $allowed_element_ids = array('/.*/');
+  }
+  else {
+    $allowed_element_ids = &$filter_options['valid_ids'];
+  }
+
   $nofollow_policy = &$filter_options['nofollow_policy'];
   $nofollow_domains = &$filter_options['nofollow_domains'];
 
@@ -390,10 +405,15 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
         // sign is not allowed, there's no need here to check for bad protocols.
         $dirty_names = array_filter(array_map('trim', explode(' ', decode_entities($attrinfo['value']))));
         $valid_names = array();
-        foreach ($dirty_names as $dirty_name) {
-          foreach ($allowed_class_names as $regexp) {
-            if (preg_match($regexp, $dirty_name)) {
-              $valid_names[] = $dirty_name;
+        if ($bypass_valid_classes) {
+          $valid_names = $dirty_names;
+        }
+        else {
+          foreach ($dirty_names as $dirty_name) {
+            foreach ($allowed_class_names as $regexp) {
+              if (preg_match($regexp, $dirty_name)) {
+                $valid_names[] = $dirty_name;
+              }
             }
           }
         }
