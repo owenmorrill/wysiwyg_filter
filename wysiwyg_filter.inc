@@ -424,7 +424,7 @@ function wysiwyg_filter_get_style_property_groups() {
       'title' => t('Layout properties'),
       'properties' => array(
         'clear' => '(?:left|right|both|none)',
-        'display' => '(?:none|inline|block|list-item|run-in|compact|marker|table-(?:(?:row|header|group|column)-group|row|column|cell|caption)|(?:inline-)?table)',
+        'display' => '(?:none|inline|inline-block|block|list-item|run-in|compact|marker|table-(?:(?:row|header|group|column)-group|row|column|cell|caption)|(?:inline-)?table)',
         'float' => '(?:left|right|none)',
         'position' => '(?:static|relative|absolute|fixed)',
         'visibility' => '(?:visible|hidden|collapse)',
