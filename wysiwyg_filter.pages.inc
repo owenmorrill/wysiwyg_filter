@@ -61,7 +61,15 @@ function wysiwyg_filter_filter_wysiwyg_process($text, $filter, $format, $langcod
     |                 # or
     <!--.*?-->        # a comment
     |                 # or
-    <[^>]*(>|$)       # a string that starts with a <, up until the > or the end of the string
+    <                 # a string that starts with a <
+    (                 # ...and contains any number of
+      "[^"]*"          # double-quoted strings
+      |
+      \'[^\']*\'       # single-quoted strings
+      |
+      [^"\'>]          # any other char
+    )*
+    (>|$)             # up until the > or the end of the string
     |                 # or
     >                 # just a >
     )%xsmu', '_wysiwyg_filter_xss_split', $text);
