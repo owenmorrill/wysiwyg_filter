@@ -298,7 +298,7 @@ function wysiwyg_filter_get_style_property_groups() {
   $regexp_integer = '[-]?[0-9]{1,3}';
   $regexp_number = '[-]?(?:[0-9]{0,3}|[0-9]{0,3}\.[0-9]{1,4})';
   $regexp_length = $regexp_number . '(?:px|pt|em|ex|in|cm|mm|pc)?';
-  $regexp_percent = '[-]?[12]?[0-9]{1,2}%';
+  $regexp_percent = '[-]?[0-9]*[.]?[0-9]*%';
   $regexp_color = '#[a-fA-F0-9]{3}|#[a-fA-F0-9]{6}|rgb\(\s*[0-9]{0,3}%?(?:\s*,\s*[0-9]{0,3}%?){2}\s*\)|[a-zA-Z]+';
   $regexp_bgcolor = $regexp_color . '|transparent';
   $regexp_border_width = $regexp_length . '|thin|medium|thick';
