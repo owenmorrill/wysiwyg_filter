@@ -392,6 +392,7 @@ function wysiwyg_filter_get_style_property_groups() {
         'border-right-style' => '(?:' . $regexp_border_style . ')',
         'border-bottom-style' => '(?:' . $regexp_border_style . ')',
         'border-left-style' => '(?:' . $regexp_border_style . ')',
+        'border-radius' => '(?:' . $regexp_length . ')',
       ),
     ),
     'dimension' => array(
