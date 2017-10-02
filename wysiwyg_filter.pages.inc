@@ -288,7 +288,7 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
 
   // Check the current HTML element for required attributes.
   foreach ($allowed_attributes as $attrname => $attrinfo) {
-    if (!empty($attrinfo['required']) && !isset($attrarr[$attrname])) {
+    if (!empty($attrinfo['required']) && empty($attrarr[$attrname]['value'])) {
       // Ignore the whole element if required attribute is not present.
       return FALSE;
     }
