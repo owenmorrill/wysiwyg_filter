@@ -216,23 +216,6 @@ function _wysiwyg_filter_is_rule_definition_complete($rule_info, $elements, $sty
 }
 
 /**
- * Clear any warning message we might have set previously.
- */
-function _wysiwyg_filter_clear_messages() {
-  $messages = drupal_get_messages('warning');
-  if (!empty($messages)) {
-    foreach (wysiwyg_filter_get_advanced_rules() as $rule_info) {
-      $my_messages[] = $rule_info['required_by_message'];
-    }
-    foreach ($messages['warning'] as $warning) {
-      if (!in_array($warning, $my_messages)) {
-        drupal_set_message($warning, 'warning');
-      }
-    }
-  }
-}
-
-/**
  * Validate filter settings form.
  *
  * @ingroup forms
