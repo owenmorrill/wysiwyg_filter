@@ -466,6 +466,11 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
         // If this is <a href> element, then check domain name for rel="nofollow" policies in effect.
         if ($element == 'a' && $attrname == 'href' && $nofollow_policy != 'disabled' && !$add_nofollow) {
           $domain_found = FALSE;
+          if ($nofollow_policy == 'whitelist_current') {
+            global $base_url;
+            $parts = parse_url($base_url);
+            $nofollow_domains = array($parts['host']);
+          }
           foreach ($nofollow_domains as $domain) {
             $domain = str_replace('.', '\.', $domain); // escape dots
             if (preg_match('#://.*' . $domain . '([^a-z0-9]|$)#i', $attrinfo['value'])) {
@@ -473,7 +478,7 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
               break;
             }
           }
-          if (($nofollow_policy == 'blacklist' && $domain_found) || ($nofollow_policy == 'whitelist' && !$domain_found)) {
+          if (($nofollow_policy == 'blacklist' && $domain_found) || ($nofollow_policy == 'whitelist' && !$domain_found) || ($nofollow_policy == 'whitelist_current' && !$domain_found)) {
             $add_nofollow = TRUE;
           }
         }

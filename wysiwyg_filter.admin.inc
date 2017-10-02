@@ -146,6 +146,7 @@ This option allows you to specify which HTML elements and attributes are allowed
     '#options' => array(
       'disabled' => t('Disabled - Do not add rel=&quot;nofollow&quot; to any link.'),
       'whitelist' => t('Whitelist - Add rel=&quot;nofollow&quot; to all links except those leading to domain names specified in the list below.'),
+      'whitelist_current' => t('Whitelist - Add rel=&quot;nofollow&quot; to all links except those leading to current domain.'),
       'blacklist' => t('Blacklist - Add rel=&quot;nofollow&quot; to all links leading to domain names specified in the list below.'),
     ),
     '#default_value' => $settings['nofollow_policy'],
