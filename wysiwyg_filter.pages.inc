@@ -50,6 +50,11 @@ function wysiwyg_filter_filter_wysiwyg_process($text, $filter, $format, $langcod
   // Named entities.
   $text = preg_replace('/&amp;([A-Za-z][A-Za-z0-9]*;)/', '&\1', $text);
 
+  // Preg modifiers:
+  // - x=extended (pattern with comments)
+  // - s=dotall (here for multiline comments)
+  // - m=multiline (so $ only matches EOF)
+  // - u=unicode
   return preg_replace_callback('%
     (
     <(?=[^a-zA-Z!/])  # a lone <
@@ -59,7 +64,7 @@ function wysiwyg_filter_filter_wysiwyg_process($text, $filter, $format, $langcod
     <[^>]*(>|$)       # a string that starts with a <, up until the > or the end of the string
     |                 # or
     >                 # just a >
-    )%x', '_wysiwyg_filter_xss_split', $text);
+    )%xsmu', '_wysiwyg_filter_xss_split', $text);
 }
 
 /**
