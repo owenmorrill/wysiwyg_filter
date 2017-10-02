@@ -134,7 +134,7 @@ function wysiwyg_filter_parse_valid_elements($valid_elements) {
   foreach ($valid_elements as $valid_element) {
     // Extract the element name and its allowed attributes list
     // including special characters that will be parsed later.
-    if (preg_match('`^(@|[#+-]{0,1}[a-z0-9/]+)(\[([^]]*)\])*$`', $valid_element, $matches)) {
+    if (preg_match('`^(@|[#+-]{0,1}[a-z0-9-/]+)(\[([^]]*)\])*$`', $valid_element, $matches)) {
       // Element names can be specified by the special character "@" (used
       // to allow a common set of attributes for all valid HTML elements)
       // or a list of names separated by the special character "/".
