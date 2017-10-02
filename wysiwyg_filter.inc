@@ -123,6 +123,10 @@ function wysiwyg_filter_get_elements_blacklist() {
  * @see wysiwyg_filter_process()
  */
 function wysiwyg_filter_parse_valid_elements($valid_elements) {
+  $parsed_elements = &drupal_static(serialize($valid_elements));
+  if (isset($parsed_elements)) {
+    return $parsed_elements;
+  }
   // Remove whitespaces and split valid elements from a comma separate list of items into an array.
   $valid_elements = array_map('drupal_strtolower', array_filter(explode(',', preg_replace('#\s+#', '', $valid_elements))));
   $parsed_elements = array();
