@@ -486,7 +486,7 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
               break;
             }
           }
-          if (($nofollow_policy == 'blacklist' && $domain_found) || ($nofollow_policy == 'whitelist' && !$domain_found) || ($nofollow_policy == 'whitelist_current' && !$domain_found)) {
+          if (($nofollow_policy == 'blacklist' && $domain_found) || (($nofollow_policy == 'whitelist' || $nofollow_policy == 'whitelist_current') && !$domain_found)) {
             $add_nofollow = TRUE;
           }
         }
