@@ -480,7 +480,7 @@ function wysiwyg_filter_get_style_property_groups() {
     $groups['color']['properties']['background-repeat'] . '|' .
     $groups['color']['properties']['background-attachment'] . '|' .
     $groups['color']['properties']['background-position'] . ')';
-  $groups['color']['properties']['background'] = '(?:' . $regexp . ')(?:(?:\s+' . $regexp . ')+)';
+  $groups['color']['properties']['background'] = '(?:' . $regexp . ')(?:(?:\s*' . $regexp . ')+)';
 
   // 'font' property.
   $regexp = '(?:' .
@@ -489,7 +489,7 @@ function wysiwyg_filter_get_style_property_groups() {
     $groups['font']['properties']['font-weight'] . '|' .
     '(?:' . $groups['font']['properties']['font-size'] . ')(?:\s*/\s*' . $groups['dimension']['properties']['line-height'] . ')?|' .
     $groups['font']['properties']['font-family'] . ')';
-  $groups['font']['properties']['font'] = '(?:' . $regexp . ')(?:(?:\s+' . $regexp . ')+)';
+  $groups['font']['properties']['font'] = '(?:' . $regexp . ')(?:(?:\s*' . $regexp . ')+)';
 
   // Allow other modules to alter groups
   drupal_alter('wysiwyg_filter_style_property_groups', $groups);
