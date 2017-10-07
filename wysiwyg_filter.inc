@@ -308,7 +308,8 @@ function wysiwyg_filter_parse_valid_elements($valid_elements) {
 function wysiwyg_filter_get_style_property_groups() {
   $regexp_integer = '[-]?[0-9]+';
   $regexp_number = '[-]?(?:[0-9]+|[0-9]*\.[0-9]+)';
-  $regexp_length = $regexp_number . '(?:px|pt|em|ex|in|cm|mm|pc)?';
+  // https://www.w3.org/TR/css3-values/#lengths
+  $regexp_length = $regexp_number . '(?:px|pt|em|ex|in|cm|mm|pc|q|ch|rem|vw|vh|vmin|vmax)?';
   $regexp_percent = '[-]?[0-9]*[.]?[0-9]*%';
   $regexp_color = '#[a-fA-F0-9]{3}|#[a-fA-F0-9]{6}|rgb\(\s*[0-9]{0,3}%?(?:\s*,\s*[0-9]{0,3}%?){2}\s*\)|[a-zA-Z]+';
   $regexp_bgcolor = $regexp_color . '|transparent';
