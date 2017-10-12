@@ -469,7 +469,7 @@ function _wysiwyg_filter_xss_attributes($attr, $element = '') {
         // Element ID is valid, check_plain result.
         $attrinfo['value'] = check_plain($attrinfo['value']);
       }
-      elseif (in_array($attrname, array('title', 'alt', 'media'))) {
+      elseif ($attrname == 'media') {
         $attrinfo['value'] = check_plain($attrinfo['value']);
       }
       else {
