@@ -18,9 +18,9 @@
  * * rewrite validate to get correct values like $form['filters']['settings'][$name] / $form_state['values']['filters'][$name]['settings']
  *
  */
-function wysiwyg_filter_filter_wysiwyg_settings(&$form, &$form_state, $filter, $format, $defaults, $filters) {
+function wysiwyg_filter_filter_wysiwyg_settings(&$form, &$form_state, $format, $filters) {
   global $base_url;
-  drupal_add_css(drupal_get_path('module', 'wysiwyg_filter') . '/wysiwyg_filter.admin.css', array('preprocess' => FALSE));
+  backdrop_add_css(backdrop_get_path('module', 'wysiwyg_filter') . '/wysiwyg_filter.admin.css', array('preprocess' => FALSE));
   // Load common functions.
   form_load_include($form_state, 'inc', 'wysiwyg_filter');
 
@@ -89,12 +89,12 @@ This option allows you to specify which HTML elements and attributes are allowed
   $i = 0;
   foreach ($style_property_groups as $group => $group_info) {
     $style_properties = $settings["style_$group"];
-    $enabled_style_properties += array_filter($style_properties);
+    $enabled_style_properties = array_merge($enabled_style_properties, array_filter($style_properties));
     $filterform["style_$group"] = array(
       '#type' => 'checkboxes',
       '#title' => $group_info['title'],
       '#default_value' => $style_properties,
-      '#options' => drupal_map_assoc(array_keys($group_info['properties'])),
+      '#options' => backdrop_map_assoc(array_keys($group_info['properties'])),
       '#checkall' => TRUE,
       '#prefix' => '<div class="wysiwyg-filter-style-properties-group">',
       '#suffix' => '</div>'. (($i % 3) == 2?'<br style="clear:both"/>':''),
@@ -131,7 +131,7 @@ This option allows you to specify which HTML elements and attributes are allowed
     // Display warning if the field is empty but the rule definition is not
     // complete.
     if (empty($settings[$field_bypass_name]) && empty($default_value) && !_wysiwyg_filter_is_rule_definition_complete($rule_info, $valid_elements_parsed, $enabled_style_properties)) {
-      drupal_set_message($rule_info['required_by_message'], 'warning');
+      backdrop_set_message($rule_info['required_by_message'], 'warning');
     }
   }
 

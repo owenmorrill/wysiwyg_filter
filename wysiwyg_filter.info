@@ -1,7 +1,7 @@
 name = WYSIWYG Filter
 description = Provides an input filter that allows site administrators configure which HTML elements, attributes and style properties are allowed.
 package = Input filters
-core = 7.x
+backdrop = 1.x
 
 files[] = wysiwyg_filter.admin.inc
 files[] = wysiwyg_filter.inc
