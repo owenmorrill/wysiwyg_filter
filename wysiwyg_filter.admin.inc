@@ -18,8 +18,9 @@
  * * rewrite validate to get correct values like $form['filters']['settings'][$name] / $form_state['values']['filters'][$name]['settings']
  *
  */
-function wysiwyg_filter_filter_wysiwyg_settings(&$form, &$form_state, $format, $filters) {
+function wysiwyg_filter_filter_wysiwyg_settings(&$form, &$form_state, $defaults, $filter) {
   global $base_url;
+  dpm($form);
   backdrop_add_css(backdrop_get_path('module', 'wysiwyg_filter') . '/wysiwyg_filter.admin.css', array('preprocess' => FALSE));
   // Load common functions.
   form_load_include($form_state, 'inc', 'wysiwyg_filter');
@@ -38,10 +39,11 @@ function wysiwyg_filter_filter_wysiwyg_settings(&$form, &$form_state, $format, $
   foreach ($elements_blacklist as $i => $element) {
     $elements_blacklist[$i] = '<' . $element . '>';
   }
+  $filterform['#config'] = 'wysiwyg_filter.settings';
   $filterform['valid_elements'] = array(
     '#type' => 'textarea',
     '#title' => t('HTML elements and attributes'),
-    '#default_value' => $valid_elements,
+    '#default_value' => config_get('wysiwyg_filter.settings', 'valid_elements'),
     '#cols' => 60,
     '#rows' => $valid_elements_rows,
     '#description' => t('<p>
@@ -74,7 +76,7 @@ This option allows you to specify which HTML elements and attributes are allowed
       0 => t('Disabled'),
       1 => t('Enabled'),
     ),
-    '#default_value' => $settings['allow_comments'],
+    '#default_value' => config_get('wysiwyg_filter.settings', 'allow_comments'),
     '#description' => t('Use this option to allow HTML comments.'),
   );
 
@@ -281,7 +283,15 @@ function wysiwyg_filter_filter_wysiwyg_settings_validate($form, &$form_state) {
  * @ingroup forms
  */
 function wysiwyg_filter_filter_wysiwyg_settings_submit($form, &$form_state) {
-  $values =& $form_state['values']['filters']['wysiwyg']['settings'];
+
+  $config = config('wysiwyg_filter.settings');
+  $config->set('valid_elements', $form_state['values']['filters']['wysiwyg']['settings']['valid_elements']);
+  $config->set('allow_comments', $form_state['values']['filters']['wysiwyg']['settings']['allow_comments']);
+  $config->save();
+
+  //dpm($form_state['values']['filters']['wysiwyg']['settings']['allow_comments']);
+  /*
+  $values = &$form_state['values']['filters']['wysiwyg']['settings'];
 
   // *** prepare valid_elements - just trim ***
   $values['valid_elements'] = trim($values['valid_elements']);
@@ -294,9 +304,10 @@ function wysiwyg_filter_filter_wysiwyg_settings_submit($form, &$form_state) {
 
   // *** prepare nofollow_domains - csv2array ***
   $values['nofollow_domains'] = wysiwyg_filter_csv2array($values['nofollow_domains']);
+  */
 }
 
-/*
+/**
  * CSV to Array
  *
  * @param atring $v
@@ -307,7 +318,7 @@ function wysiwyg_filter_csv2array($v, $space2comma = TRUE) {
   IF($space2comma) $v = preg_replace('#\s+#', ',', $v);
   return array_filter(explode(',', $v));
 }
-/*
+/**
  * Array to CSV
  *
  * @param array $v
