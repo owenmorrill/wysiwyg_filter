@@ -92,14 +92,3 @@ function wysiwyg_filter_wysiwyg_editor_settings_alter(&$editor_settings, $contex
     endif;
   endif;
 }
-
-/**
- * Implements hook_config_info().
- */
-function wysiwyg_filter_config_info() {
-  $prefixes['wysiwyg_filter.settings'] = array(
-    'label' => t('First set of settings'),
-    'group' => t('My Module'),
-  );
-  return $prefixes;
-}

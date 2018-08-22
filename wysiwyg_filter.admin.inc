@@ -20,7 +20,7 @@
  */
 function wysiwyg_filter_filter_wysiwyg_settings(&$form, &$form_state, $defaults, $filter) {
   global $base_url;
-  dpm($form);
+  $config_file = 'wysiwyg_filter.' . arg(4) . '.settings';
   backdrop_add_css(backdrop_get_path('module', 'wysiwyg_filter') . '/wysiwyg_filter.admin.css', array('preprocess' => FALSE));
   // Load common functions.
   form_load_include($form_state, 'inc', 'wysiwyg_filter');
@@ -39,11 +39,11 @@ function wysiwyg_filter_filter_wysiwyg_settings(&$form, &$form_state, $defaults,
   foreach ($elements_blacklist as $i => $element) {
     $elements_blacklist[$i] = '<' . $element . '>';
   }
-  $filterform['#config'] = 'wysiwyg_filter.settings';
+  $filterform['#config'] = $config_file;
   $filterform['valid_elements'] = array(
     '#type' => 'textarea',
     '#title' => t('HTML elements and attributes'),
-    '#default_value' => config_get('wysiwyg_filter.settings', 'valid_elements'),
+    '#default_value' => config_get($config_file, 'valid_elements'),
     '#cols' => 60,
     '#rows' => $valid_elements_rows,
     '#description' => t('<p>
@@ -76,7 +76,7 @@ This option allows you to specify which HTML elements and attributes are allowed
       0 => t('Disabled'),
       1 => t('Enabled'),
     ),
-    '#default_value' => config_get('wysiwyg_filter.settings', 'allow_comments'),
+    '#default_value' => config_get($config_file, 'allow_comments'),
     '#description' => t('Use this option to allow HTML comments.'),
   );
 
@@ -95,7 +95,7 @@ This option allows you to specify which HTML elements and attributes are allowed
     $filterform["style_$group"] = array(
       '#type' => 'checkboxes',
       '#title' => $group_info['title'],
-      '#default_value' => $style_properties,
+      '#default_value' => config_get($config_file, "style_$group"),
       '#options' => backdrop_map_assoc(array_keys($group_info['properties'])),
       '#checkall' => TRUE,
       '#prefix' => '<div class="wysiwyg-filter-style-properties-group">',
@@ -118,7 +118,7 @@ This option allows you to specify which HTML elements and attributes are allowed
     $filterform[$field_name] = array(
       '#type' => 'textarea',
       '#title' => $rule_info['title'],
-      '#default_value' => $default_value,
+      '#default_value' => config_get($config_file, $field_name),
       '#cols' => 60,
       '#rows' => min(10, max(2, substr_count($default_value, "\n") + 2)),
       '#description' => $rule_info['description'],
@@ -126,13 +126,13 @@ This option allows you to specify which HTML elements and attributes are allowed
     $filterform[$field_bypass_name] = array(
       '#type' => 'checkbox',
       '#title' => t('Bypass %rule', array('%rule' => $rule_info['title'])),
-      '#default_value' => !empty($settings[$field_bypass_name]),
+      '#default_value' => !empty(config_get($config_file, $field_bypass_name)),
       '#description' => t('Bypassing this rule may lead to security vulnerabilities. Only grant this filter to trusted roles.'),
     );
 
     // Display warning if the field is empty but the rule definition is not
     // complete.
-    if (empty($settings[$field_bypass_name]) && empty($default_value) && !_wysiwyg_filter_is_rule_definition_complete($rule_info, $valid_elements_parsed, $enabled_style_properties)) {
+    if (empty(config_get($config_file, $field_bypass_name)) && empty($default_value) && !_wysiwyg_filter_is_rule_definition_complete($rule_info, $valid_elements_parsed, $enabled_style_properties)) {
       backdrop_set_message($rule_info['required_by_message'], 'warning');
     }
   }
@@ -151,7 +151,7 @@ This option allows you to specify which HTML elements and attributes are allowed
       'whitelist_current' => t('Whitelist - Add rel=&quot;nofollow&quot; to all links except those leading to current domain.'),
       'blacklist' => t('Blacklist - Add rel=&quot;nofollow&quot; to all links leading to domain names specified in the list below.'),
     ),
-    '#default_value' => $settings['nofollow_policy'],
+    '#default_value' => config_get($config_file, 'nofollow_policy'),
     '#description' => t('If you choose the whitelist option, be sure to add your own domain names to the list!'),
   );
   $parts = parse_url($base_url);
@@ -162,7 +162,7 @@ This option allows you to specify which HTML elements and attributes are allowed
   $filterform['nofollow_domains'] = array(
     '#type' => 'textarea',
     '#title' => t('Domains list'),
-    '#default_value' => $nofollow_domains,
+    '#default_value' => config_get($config_file, 'nofollow_domains'),
     '#cols' => 60,
     '#rows' => min(10, max(5, substr_count($nofollow_domains, "\n") + 2)),
     '#description' => t('Enter a comma separated list of top level domain names. Note that all subdomains will also be included. Example: example.com will match example.com, www.example.com, etc.'),
@@ -284,12 +284,20 @@ function wysiwyg_filter_filter_wysiwyg_settings_validate($form, &$form_state) {
  */
 function wysiwyg_filter_filter_wysiwyg_settings_submit($form, &$form_state) {
 
-  $config = config('wysiwyg_filter.settings');
-  $config->set('valid_elements', $form_state['values']['filters']['wysiwyg']['settings']['valid_elements']);
-  $config->set('allow_comments', $form_state['values']['filters']['wysiwyg']['settings']['allow_comments']);
+  $config = config('wysiwyg_filter.' . arg(4) . '.settings');
+
+  foreach ($form_state['values']['filters']['wysiwyg']['settings'] as $key => $setting) {
+    $config->set($key, $form_state['values']['filters']['wysiwyg']['settings'][$key]);
+  }
+
+  $style_property_groups = wysiwyg_filter_get_style_property_groups();
+  foreach ($style_property_groups as $key => $group) {
+    $group_name = 'style_' . $key;
+    $config->set($group_name, $form_state['values']['filters']['wysiwyg']['settings'][$group_name]);
+  }
+
   $config->save();
 
-  //dpm($form_state['values']['filters']['wysiwyg']['settings']['allow_comments']);
   /*
   $values = &$form_state['values']['filters']['wysiwyg']['settings'];
 
