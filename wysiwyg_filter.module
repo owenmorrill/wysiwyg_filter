@@ -28,13 +28,13 @@ function wysiwyg_filter_filter_info() {
     'nofollow_policy' => 'whitelist',
     'nofollow_domains' => array($parts['host']),
   );
-  foreach(wysiwyg_filter_get_style_property_groups() as $group => $stuff):
-      $defaults["style_$group"] = array();
-  endforeach;
-  foreach(wysiwyg_filter_get_advanced_rules() as $rule => $stuff):
-      $defaults["rule_$rule"] = array();
-      $defaults["rule_bypass_$rule"] = 0;
-  endforeach;
+  foreach (wysiwyg_filter_get_style_property_groups() as $group => $stuff) {
+    $defaults["style_$group"] = array();
+  };
+  foreach (wysiwyg_filter_get_advanced_rules() as $rule => $stuff) {
+    $defaults["rule_$rule"] = array();
+    $defaults["rule_bypass_$rule"] = 0;
+  };
 
   $filters['wysiwyg'] = array(
     'title' => t('WYSIWYG Filter'),
@@ -77,18 +77,18 @@ function wysiwyg_filter_filter_wysiwyg_tips($filter, $format, $long = FALSE) {
 function wysiwyg_filter_wysiwyg_editor_settings_alter(&$editor_settings, $context) {
   // Provide the valid_elements option to TinyMCE editors, only if the WYSIWYG
   // Filter is enabled in the input format related to the current given context.
-  if ($context['profile']->editor == 'tinymce'):
+  if ($context['profile']->editor == 'tinymce') {
     // first get the filters and their settings
-    if (isset($context['profile']->format)):
+    if (isset($context['profile']->format)) {
       $format_name = $context['profile']->format;
       $filters = filter_list_format($format_name);
-      if($filters && array_key_exists('wysiwyg', $filters)):
+      if ($filters && array_key_exists('wysiwyg', $filters)) {
         $filter = $filters['wysiwyg'];
-        if($filter->status != 0) {
+        if ($filter->status != 0) {
           $settings = $filter->settings;
           $editor_settings['valid_elements'] = preg_replace('#\s+#', '', $settings['valid_elements']);
         }
-      endif;
-    endif;
-  endif;
+      };
+    };
+  };
 }
